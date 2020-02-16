@@ -1,0 +1,14 @@
+[_] Load stock-example.csv into clickhouse
+	[_] Convert stock-example.csv to parquet
+	[_] Load parquet file to clickhouse
+[_] Connect to clickhouse with code
+	[_] Using Python driver
+	[_] Using sqlalchemy
+	[_] Using pandas
+[_] Load data into clickhouse with code
+	[_] Create clickhouse table from Python
+	[_] Load dataframe into clickhouse table
+[_] Create table for airline data
+	[_] Load airline data into Clickhouse
+	[_] Query airline data
+	[_] Try different kinds of clickhouse tables
