@@ -1,0 +1,15 @@
+---
+- name: pull redis docker
+  docker_image:
+    name: redis
+    source: pull
+
+- name: pull clickhouse server
+  docker_image:
+    name: yandex/clickhouse-server
+    source: pull
+
+- name: pull clickhouse client
+  docker_image:
+    name: yandex/clickhouse-client
+    source: pull

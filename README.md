@@ -156,6 +156,8 @@ DROP database test;
 
 ### Insert csv into client
 
+1. Create the table
+
 ```
 CREATE TABLE stock (
      plant Int16,
@@ -165,9 +167,16 @@ CREATE TABLE stock (
 ) ENGINE = Log
 ```
 
+2. Load csv data into the table
+
 ```
-cat stock-example.csv | docker exec -it ch-server /usr/bin/clickhouse-client \
-    --query="INSERT INTO stock FORMAT CSV";
+cat stock-example.csv | clickhouse-client --query="INSERT INTO stock FORMAT CSV";
+```
+
+3. Display the data
+
+```
+select * from stock
 ```
 
 ## Links
@@ -175,3 +184,17 @@ cat stock-example.csv | docker exec -it ch-server /usr/bin/clickhouse-client \
 * Setup [Clickhouse on Debian][1000]
 
 [1000]: https://www.digitalocean.com/community/tutorials/how-to-install-and-use-clickhouse-on-debian-10
+
+### Python drivers
+
+* Clickhouse [ORM][1010] for Python
+
+[1010]: https://github.com/Infinidat/infi.clickhouse_orm
+
+* Clickhouse to [pandas][1020]
+
+[1020]: https://github.com/kszucs/pandahouse
+
+* Clickhouse [Python driver][1030] with native support
+
+[1030]: https://github.com/mymarilyn/clickhouse-driver
