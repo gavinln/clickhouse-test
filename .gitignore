@@ -1,0 +1,9 @@
+*~
+*.pyc
+*.class
+*.swp
+*.retry
+*.log
+.vagrant
+ansible/playbook.retry
+ansible/roles/
