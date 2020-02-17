@@ -1,6 +1,8 @@
-[_] Load stock-example.csv into clickhouse
-	[_] Convert stock-example.csv to parquet
-	[_] Load parquet file to clickhouse
+[X] Load stock-example.csv into clickhouse
+	[X] Convert stock-example.csv to parquet
+	[X] Load parquet file to clickhouse
+	[X] Convert stock-example.csv to gzip parquet
+	[X] Load gzip parquet file to clickhouse
 [_] Connect to clickhouse with code
 	[_] Using Python driver
 	[_] Using sqlalchemy

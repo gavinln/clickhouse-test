@@ -154,7 +154,7 @@ DROP table visits;
 DROP database test;
 ```
 
-### Insert csv into client
+### Insert csv file into table
 
 1. Create the table
 
@@ -171,6 +171,26 @@ CREATE TABLE stock (
 
 ```
 cat stock-example.csv | clickhouse-client --query="INSERT INTO stock FORMAT CSV";
+```
+
+3. Display the data
+
+```
+select * from stock
+```
+
+4. Get number of rows
+
+```
+select count(*) from stock
+```
+
+### Insert parquet file into table
+
+1. Load parquet data into the table
+
+```
+cat stock-example.parq | clickhouse-client --query="INSERT INTO stock FORMAT Parquet";
 ```
 
 3. Display the data
