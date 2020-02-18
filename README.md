@@ -60,7 +60,7 @@ cd /vagrant
 sudo apt-key adv --keyserver keyserver.ubuntu.com --recv E0C56BD4
 echo "deb http://repo.yandex.ru/clickhouse/deb/stable/ main/" | sudo tee /etc/apt/sources.list.d/clickhouse.list
 sudo apt update
-sudo apt install clickhouse-client
+sudo apt install -y clickhouse-client
 ```
 
 6. Start the clickhouse client
@@ -218,3 +218,86 @@ select * from stock
 * Clickhouse [Python driver][1030] with native support
 
 [1030]: https://github.com/mymarilyn/clickhouse-driver
+
+## Load airline data
+
+1. Start clickhouse client
+
+```
+clickhouse-client
+```
+
+2. Drop table
+
+```sql
+drop table flight;
+```
+
+3. Create table
+
+```sql
+create table flight (
+    Year              Int16,
+    Month             Int8,
+    DayofMonth        Int16,
+    DayOfWeek         Int8,
+    DepTime           Nullable(Int16),
+    CRSDepTime        Int16,
+    ArrTime           Nullable(Int16),
+    CRSArrTime        Int16,
+    UniqueCarrier     String,
+    FlightNum         Int32,
+    TailNum           Nullable(String),
+    ActualElapsedTime Nullable(Int32),
+    CRSElapsedTime    Nullable(Int32),
+    AirTime           Nullable(Int32),
+    ArrDelay          Nullable(Int32),
+    DepDelay          Nullable(Int32),
+    Origin            String,
+    Dest              String,
+    Distance          Nullable(Int32),
+    TaxiIn            Nullable(Int32),
+    TaxiOut           Nullable(Int32),
+    Cancelled         Int8,
+    CancellationCode  Nullable(String),
+    Diverted          Int8,
+    CarrierDelay      Nullable(Int32),
+    WeatherDelay      Nullable(Int32),
+    NASDelay          Nullable(Int32),
+    SecurityDelay     Nullable(Int32),
+    LateAircraftDelay Nullable(Int32)
+) ENGINE = Log;
+```
+
+4. Exit client
+
+```
+exit;
+```
+
+5. Insert data into tables
+
+```
+cat 1987_cleaned.gzip.parq | clickhouse-client --query="INSERT INTO flight FORMAT Parquet"
+cat 1988_cleaned.gzip.parq | clickhouse-client --query="INSERT INTO flight FORMAT Parquet"
+cat 1989_cleaned.gzip.parq | clickhouse-client --query="INSERT INTO flight FORMAT Parquet"
+cat 1990_cleaned.gzip.parq | clickhouse-client --query="INSERT INTO flight FORMAT Parquet"
+cat 1991_cleaned.gzip.parq | clickhouse-client --query="INSERT INTO flight FORMAT Parquet"
+cat 1992_cleaned.gzip.parq | clickhouse-client --query="INSERT INTO flight FORMAT Parquet"
+cat 1993_cleaned.gzip.parq | clickhouse-client --query="INSERT INTO flight FORMAT Parquet"
+cat 1994_cleaned.gzip.parq | clickhouse-client --query="INSERT INTO flight FORMAT Parquet"
+cat 1995_cleaned.gzip.parq | clickhouse-client --query="INSERT INTO flight FORMAT Parquet"
+cat 1996_cleaned.gzip.parq | clickhouse-client --query="INSERT INTO flight FORMAT Parquet"
+cat 1997_cleaned.gzip.parq | clickhouse-client --query="INSERT INTO flight FORMAT Parquet"
+cat 1998_cleaned.gzip.parq | clickhouse-client --query="INSERT INTO flight FORMAT Parquet"
+cat 1999_cleaned.gzip.parq | clickhouse-client --query="INSERT INTO flight FORMAT Parquet"
+cat 2000_cleaned.gzip.parq | clickhouse-client --query="INSERT INTO flight FORMAT Parquet"
+cat 2001_cleaned.gzip.parq | clickhouse-client --query="INSERT INTO flight FORMAT Parquet"
+cat 2002_cleaned.gzip.parq | clickhouse-client --query="INSERT INTO flight FORMAT Parquet"
+cat 2003_cleaned.gzip.parq | clickhouse-client --query="INSERT INTO flight FORMAT Parquet"
+cat 2004_cleaned.gzip.parq | clickhouse-client --query="INSERT INTO flight FORMAT Parquet"
+cat 2005_cleaned.gzip.parq | clickhouse-client --query="INSERT INTO flight FORMAT Parquet"
+cat 2006_cleaned.gzip.parq | clickhouse-client --query="INSERT INTO flight FORMAT Parquet"
+cat 2007_cleaned.gzip.parq | clickhouse-client --query="INSERT INTO flight FORMAT Parquet"
+cat 2008_cleaned.gzip.parq | clickhouse-client --query="INSERT INTO flight FORMAT Parquet"
+```

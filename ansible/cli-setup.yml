@@ -49,3 +49,16 @@
     dest: /usr/local/bin/mc
     mode: u=rwx,g=rx,o=rx
   register: mc_download
+
+- name: Add clickhouse signing key
+  apt_key:
+    keyserver: keyserver.ubuntu.com
+    id: E0C56BD4
+
+- apt_repository:
+    repo: "deb http://repo.yandex.ru/clickhouse/deb/stable/ main/"
+    state: present
+
+- name: install clickhouse-client
+  apt: name="clickhouse-client" state=present
+
