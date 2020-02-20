@@ -1,11 +1,7 @@
 import logging
-import sys
 from pathlib import Path
 
 import pandas as pd
-import pyarrow.parquet as pq
-
-from IPython import embed
 
 
 logging.basicConfig(level=logging.INFO)
@@ -41,18 +37,6 @@ def main() -> None:
 
     dtypes_srs = dtypes_frame.apply(combine_types, axis=1)
     print(dtypes_srs)
-
-    embed()
-
-    # col_names = ['plant', 'code', 'service_level', 'qty']
-    # df = pd.read_csv(parq_files, names=col_names)
-    # write_parq_file = (
-    #     SCRIPT_DIR / '..' / 'clickhouse' / 'stock-example.parq').resolve()
-    # write_parquet(df, write_parq_file)
-
-    # write_parq_gzip_file = (
-    #     SCRIPT_DIR / '..' / 'clickhouse' / 'stock-example.gzip.parq').resolve()
-    # write_parquet_gzip(df, write_parq_gzip_file)
 
 
 if __name__ == '__main__':
