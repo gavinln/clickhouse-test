@@ -7,4 +7,4 @@
 .vagrant
 ansible/playbook.retry
 ansible/roles/
-clickhouse/clickhouse-data/
+clickhouse/airline-data/
