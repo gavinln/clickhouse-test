@@ -31,3 +31,13 @@
 
 - name: install snappy decompression
   pip: name=python-snappy state=present
+
+- name: install snappy decompression
+  pip: name=python-snappy state=present
+
+- name: clickhouse client that supports a pure client and DB API
+  pip: name=clickhouse-driver state=present
+
+- name: clickhouse sqlalchemy dialect
+  pip: name=sqlalchemy-clickhouse state=present
+

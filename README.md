@@ -199,26 +199,6 @@ cat stock-example.parq | clickhouse-client --query="INSERT INTO stock FORMAT Par
 select * from stock
 ```
 
-## Links
-
-* Setup [Clickhouse on Debian][1000]
-
-[1000]: https://www.digitalocean.com/community/tutorials/how-to-install-and-use-clickhouse-on-debian-10
-
-### Python drivers
-
-* Clickhouse [ORM][1010] for Python
-
-[1010]: https://github.com/Infinidat/infi.clickhouse_orm
-
-* Clickhouse to [pandas][1020]
-
-[1020]: https://github.com/kszucs/pandahouse
-
-* Clickhouse [Python driver][1030] with native support
-
-[1030]: https://github.com/mymarilyn/clickhouse-driver
-
 ## Load airline data
 
 1. Start clickhouse client
@@ -301,3 +281,27 @@ cat 2006_cleaned.gzip.parq | clickhouse-client --query="INSERT INTO flight FORMA
 cat 2007_cleaned.gzip.parq | clickhouse-client --query="INSERT INTO flight FORMAT Parquet"
 cat 2008_cleaned.gzip.parq | clickhouse-client --query="INSERT INTO flight FORMAT Parquet"
 ```
+
+## Links
+
+* Setup [Clickhouse on Debian][1000]
+
+[1000]: https://www.digitalocean.com/community/tutorials/how-to-install-and-use-clickhouse-on-debian-10
+
+### Python drivers
+
+* Clickhouse [ORM][1010] for Python
+
+[1010]: https://github.com/Infinidat/infi.clickhouse_orm
+
+* Clickhouse to [pandas][1020]
+
+[1020]: https://github.com/kszucs/pandahouse
+
+* Clickhouse [Python driver][1030] with native support
+
+[1030]: https://github.com/mymarilyn/clickhouse-driver
+
+* [Sqlalchemy clickhouse][1040]
+
+[1040]: https://github.com/cloudflare/sqlalchemy-clickhouse
