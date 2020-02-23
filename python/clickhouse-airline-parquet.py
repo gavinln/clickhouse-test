@@ -1,3 +1,6 @@
+'''
+The airline data set is used which has about 123 million rows from 1987 to 2008
+'''
 import logging
 from pathlib import Path
 import time

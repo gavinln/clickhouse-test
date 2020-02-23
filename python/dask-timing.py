@@ -18,7 +18,10 @@ SCRIPT_DIR = Path(__file__).parent.resolve()
 
 
 def get_query(df):
-    ' get avg delay and flight count for airports > 35,000 flights/per month '
+    ''' get avg delay and flight count for airports > 35,000 flights/per month
+
+        About 140 seconds for 123 million rows from 1987 to 2008
+    '''
     df2 = df.groupby(['Origin', 'Year', 'Month']).agg({
             'DepDelay': np.mean,
             'Origin': np.size
