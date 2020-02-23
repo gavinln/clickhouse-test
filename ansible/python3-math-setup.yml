@@ -7,3 +7,9 @@
 
 - name: install dask
   pip: name=dask state=present
+
+- name: install toolz for dask
+  pip: name=toolz state=present
+
+- name: install fsspec for dask
+  pip: name=fsspec state=present

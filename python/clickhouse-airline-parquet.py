@@ -1,9 +1,11 @@
 import logging
 from pathlib import Path
+import time
 
 from subprocess import Popen
 from subprocess import PIPE
 from subprocess import STDOUT
+from subprocess import check_output
 
 import pandas as pd
 
@@ -40,12 +42,13 @@ def get_parquet_column_types(parq_files):
     dtypes_srs = dtypes_frame.apply(combine_types, axis=1)
     return dtypes_srs
 
-'''
-select Origin, Year, Month, avg(DepDelay), count(*)
-from flight
-group by Origin, Year, Month
-having count(*) > 35000;
-'''
+
+def execute_sql(sql):
+    engine = sa.create_engine('clickhouse://default@10.0.0.2:8123/default')
+    with engine.begin() as connection:
+        result = connection.execute(sql)
+        print(result.fetchall())
+
 
 def create_flight_table():
     sql = '''
@@ -79,27 +82,79 @@ def create_flight_table():
             NASDelay          Nullable(Int32),
             SecurityDelay     Nullable(Int32),
             LateAircraftDelay Nullable(Int32)
-        ) ENGINE = Log
+        ) ENGINE = MergeTree
+        Order by Year
     '''
-    engine = sa.create_engine('clickhouse://default@10.0.0.2:8123/default')
-    with engine.begin() as connection:
-        result = connection.execute(sql)
-        print(result.fetchall())
+    execute_sql(sql)
+
+
+def create_flight_view():
+    sql = '''
+        create materialized view flight_view
+        engine = AggregatingMergeTree() ORDER BY (Origin, Year, Month)
+        as select
+            Origin, Year, Month,
+            avgState(DepDelay) as avg_DepDelay,
+            countState(DepDelay) as count_DepDelay
+        from flight
+        group by Origin, Year, Month
+    '''
+    execute_sql(sql)
+
+
+def query_flight_table():
+    ' 5.41 s '
+    sql = '''
+        select Origin, Year, Month,
+            avg(DepDelay),
+            count(DepDelay)
+        from flight
+        group by Origin, Year, Month
+        having count(DepDelay) > 35000
+    '''
+    execute_sql(sql)
+
+
+def query_flight_view():
+    ' 0.72s '
+    sql = '''
+        select Origin, Year, Month,
+            avgMerge(avg_DepDelay),
+            countMerge(count_DepDelay)
+        from flight_view
+        group by Origin, Year, Month
+        having countMerge(count_DepDelay) > 35000
+    '''
+    execute_sql(sql)
 
 
 def main() -> None:
+    '''
+    Loading data without AggregatingMergeTree: 3m18s
+    Loading data with AggregatingMergeTree: 3m18s
+    '''
     parq_file_dir = (
         SCRIPT_DIR / '..' / 'clickhouse' / 'airline-data').resolve()
+    create_flight_table()
+    create_flight_view()
     parq_files = parq_file_dir.glob('*_cleaned.gzip.parq')
+
+    for parq_file in sorted(list(parq_files)):
+        print('processing {}'.format(parq_file))
+        prg = 'clickhouse-client --query="INSERT INTO flight FORMAT Parquet"'
+        output = check_output("cat {} | {}".format(parq_file, prg),
+                              shell=True)
+        print(output.decode('utf-8').strip())
+
+    start_time = time.time()
+    query_flight_table()
+    query_flight_view()
+    elapsed = time.time() - start_time
+    print('Elapsed = {:,.2f} seconds'.format(elapsed))
 
     # dtypes_srs = get_parquet_column_types(parq_files)
     # print(dtypes_srs)
 
-    create_flight_table()
-
-    # with Popen(["date", "-h"], stdout=PIPE) as proc:
-    #     result = proc.stdout.read().decode('utf-8')
-    #     print(result)
 
 if __name__ == '__main__':
     main()

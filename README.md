@@ -305,3 +305,7 @@ cat 2008_cleaned.gzip.parq | clickhouse-client --query="INSERT INTO flight FORMA
 * [Sqlalchemy clickhouse][1040]
 
 [1040]: https://github.com/cloudflare/sqlalchemy-clickhouse
+
+* [Aggregating merge tree]
+
+[1050]: https://www.altinity.com/blog/2020/1/1/clickhouse-cost-efficiency-in-action-analyzing-500-billion-rows-on-an-intel-nuc
