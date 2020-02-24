@@ -8,3 +8,4 @@
 ansible/playbook.retry
 ansible/roles/
 clickhouse/airline-data/
+.ipynb_checkpoints/

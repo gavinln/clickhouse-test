@@ -21,6 +21,30 @@ the VM is started.
 
 [90]: https://www.ansible.com/
 
+## Metadata queries
+
+1. Get list of tables
+
+```sql
+select database, name from tables where database = 'default';
+```
+
+2. Get list of columns
+
+```sql
+select database, table, name, type from columns where database = 'default';
+```
+
+3. Get table and column names
+
+```sql
+select database, table, name, type
+from columns
+where database = 'default'
+    and table = 'flight'
+```
+
+
 ## Setup the machine
 
 All the software installed exceeds the standard 10GB size of the virtual
@@ -207,46 +231,17 @@ select * from stock
 clickhouse-client
 ```
 
-2. Drop table
+2. List tables
 
 ```sql
-drop table flight;
+show tables;
 ```
 
-3. Create table
+3. Drop tables if needed
 
 ```sql
-create table flight (
-    Year              Int16,
-    Month             Int8,
-    DayofMonth        Int16,
-    DayOfWeek         Int8,
-    DepTime           Nullable(Int16),
-    CRSDepTime        Int16,
-    ArrTime           Nullable(Int16),
-    CRSArrTime        Int16,
-    UniqueCarrier     String,
-    FlightNum         Int32,
-    TailNum           Nullable(String),
-    ActualElapsedTime Nullable(Int32),
-    CRSElapsedTime    Nullable(Int32),
-    AirTime           Nullable(Int32),
-    ArrDelay          Nullable(Int32),
-    DepDelay          Nullable(Int32),
-    Origin            String,
-    Dest              String,
-    Distance          Nullable(Int32),
-    TaxiIn            Nullable(Int32),
-    TaxiOut           Nullable(Int32),
-    Cancelled         Int8,
-    CancellationCode  Nullable(String),
-    Diverted          Int8,
-    CarrierDelay      Nullable(Int32),
-    WeatherDelay      Nullable(Int32),
-    NASDelay          Nullable(Int32),
-    SecurityDelay     Nullable(Int32),
-    LateAircraftDelay Nullable(Int32)
-) ENGINE = Log;
+drop table if exists flight;
+drop table if exists flight_view;
 ```
 
 4. Exit client
@@ -255,31 +250,44 @@ create table flight (
 exit;
 ```
 
-5. Insert data into tables
+5. Use a Python file to load data
 
 ```
-cat 1987_cleaned.gzip.parq | clickhouse-client --query="INSERT INTO flight FORMAT Parquet"
-cat 1988_cleaned.gzip.parq | clickhouse-client --query="INSERT INTO flight FORMAT Parquet"
-cat 1989_cleaned.gzip.parq | clickhouse-client --query="INSERT INTO flight FORMAT Parquet"
-cat 1990_cleaned.gzip.parq | clickhouse-client --query="INSERT INTO flight FORMAT Parquet"
-cat 1991_cleaned.gzip.parq | clickhouse-client --query="INSERT INTO flight FORMAT Parquet"
-cat 1992_cleaned.gzip.parq | clickhouse-client --query="INSERT INTO flight FORMAT Parquet"
-cat 1993_cleaned.gzip.parq | clickhouse-client --query="INSERT INTO flight FORMAT Parquet"
-cat 1994_cleaned.gzip.parq | clickhouse-client --query="INSERT INTO flight FORMAT Parquet"
-cat 1995_cleaned.gzip.parq | clickhouse-client --query="INSERT INTO flight FORMAT Parquet"
-cat 1996_cleaned.gzip.parq | clickhouse-client --query="INSERT INTO flight FORMAT Parquet"
-cat 1997_cleaned.gzip.parq | clickhouse-client --query="INSERT INTO flight FORMAT Parquet"
-cat 1998_cleaned.gzip.parq | clickhouse-client --query="INSERT INTO flight FORMAT Parquet"
-cat 1999_cleaned.gzip.parq | clickhouse-client --query="INSERT INTO flight FORMAT Parquet"
-cat 2000_cleaned.gzip.parq | clickhouse-client --query="INSERT INTO flight FORMAT Parquet"
-cat 2001_cleaned.gzip.parq | clickhouse-client --query="INSERT INTO flight FORMAT Parquet"
-cat 2002_cleaned.gzip.parq | clickhouse-client --query="INSERT INTO flight FORMAT Parquet"
-cat 2003_cleaned.gzip.parq | clickhouse-client --query="INSERT INTO flight FORMAT Parquet"
-cat 2004_cleaned.gzip.parq | clickhouse-client --query="INSERT INTO flight FORMAT Parquet"
-cat 2005_cleaned.gzip.parq | clickhouse-client --query="INSERT INTO flight FORMAT Parquet"
-cat 2006_cleaned.gzip.parq | clickhouse-client --query="INSERT INTO flight FORMAT Parquet"
-cat 2007_cleaned.gzip.parq | clickhouse-client --query="INSERT INTO flight FORMAT Parquet"
-cat 2008_cleaned.gzip.parq | clickhouse-client --query="INSERT INTO flight FORMAT Parquet"
+python3 ./python/clickhouse-airline-parquet.py
+```
+
+## Run Jupyter notebooks
+
+1. Setup the Python version
+
+```
+pipenv --python $(which python3)
+```
+
+2. Install libraries
+
+```
+pipenv install
+```
+
+3. Install nodejs and npm if need
+
+```
+curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
+sudo apt install -y nodejs
+```
+
+4. Install extensions
+
+```
+jupyter labextension install @aquirdturtle/collapsible_headings  # headings
+jupyter labextension install jupyterlab_vim  # vim bindings for jupyterlab
+```
+
+4. Run Jupyter lab
+
+```
+make jupyter-lab
 ```
 
 ## Links
@@ -309,3 +317,9 @@ cat 2008_cleaned.gzip.parq | clickhouse-client --query="INSERT INTO flight FORMA
 * [Aggregating merge tree]
 
 [1050]: https://www.altinity.com/blog/2020/1/1/clickhouse-cost-efficiency-in-action-analyzing-500-billion-rows-on-an-intel-nuc
+
+### Miscellaneous
+
+* [SqlAlchemy extensions][1060]
+
+[1060]: https://github.com/kvesteri/sqlalchemy-utils

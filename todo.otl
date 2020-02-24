@@ -3,14 +3,22 @@
 	[X] Load parquet file to clickhouse
 	[X] Convert stock-example.csv to gzip parquet
 	[X] Load gzip parquet file to clickhouse
-[_] Connect to clickhouse with code
-	[_] Using Python driver
-	[_] Using sqlalchemy
-	[_] Using pandas
-[_] Load data into clickhouse with code
-	[_] Create clickhouse table from Python
-	[_] Load dataframe into clickhouse table
-[_] Create table for airline data
-	[_] Load airline data into Clickhouse
-	[_] Query airline data
-	[_] Try different kinds of clickhouse tables
+[X] Connect to clickhouse with code
+	[X] Using Python driver
+	[X] Using sqlalchemy
+	[X] Using pandas
+[X] Load data into clickhouse with code
+	[X] Create clickhouse table from Python
+	[X] Load dataframe into clickhouse table
+[X] Create table for airline data
+	[X] Load airline data into Clickhouse
+	[X] Query airline data
+	[X] Try different kinds of clickhouse tables
+[X] Access clickhouse data using ibis
+	[X] Install ibis
+	[X] Access clickhouse using ibis
+[_] Create clickhouse_utils
+	[X] Get null count for fields in a table
+	[_] Get min, mean, max for numeric fields
+	[_] Get quantiles for numeric fields
+
