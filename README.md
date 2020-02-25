@@ -270,24 +270,27 @@ pipenv --python $(which python3)
 pipenv install
 ```
 
-3. Install nodejs and npm if need
+3. Install Jupyter notebook extensions
 
 ```
-curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
-sudo apt install -y nodejs
+pipenv run jupyter contrib nbextension install --user
 ```
 
-4. Install extensions
+4. Go to the Edit menu nbextensions config option to setup plugins
+
+5. Some useful plugins
+
+* Code prettify
+* Collapsible Headings
+* Comment/Uncomment Hotkey
+* ExecuteTime
+* Select CodeMirror Keymap
+* Table of Contents (2)
+
+6. Run Jupyter notebook
 
 ```
-jupyter labextension install @aquirdturtle/collapsible_headings  # headings
-jupyter labextension install jupyterlab_vim  # vim bindings for jupyterlab
-```
-
-4. Run Jupyter lab
-
-```
-make jupyter-lab
+make jupyter-bn
 ```
 
 ## Links
