@@ -151,6 +151,10 @@ def main() -> None:
 
     start_time = time.time()
     query_flight_table()
+    elapsed = time.time() - start_time
+    print('Elapsed = {:,.2f} seconds'.format(elapsed))
+
+    start_time = time.time()
     query_flight_view()
     elapsed = time.time() - start_time
     print('Elapsed = {:,.2f} seconds'.format(elapsed))
