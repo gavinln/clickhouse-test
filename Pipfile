@@ -30,6 +30,7 @@ jupyterlab = "==1.2.6"
 sqlalchemy-clickhouse = "*"
 ibis-framework = {extras = ["clickhouse"],version = "*"}
 jupytext = "*"
+awscli = "*"
 
 [requires]
 python_version = "3.7"

@@ -9,3 +9,4 @@ ansible/playbook.retry
 ansible/roles/
 clickhouse/airline-data/
 .ipynb_checkpoints/
+do_not_checkin/

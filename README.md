@@ -293,6 +293,14 @@ pipenv run jupyter contrib nbextension install --user
 make jupyter-bn
 ```
 
+## AWS S3
+
+1. Setup AWS configuration
+source ./do_not_checkin/aws-setup.sh
+
+
+
+
 ## Links
 
 * Setup [Clickhouse on Debian][1000]
@@ -326,3 +334,7 @@ make jupyter-bn
 * [SqlAlchemy extensions][1060]
 
 [1060]: https://github.com/kvesteri/sqlalchemy-utils
+
+* Python [child processes][1070] buffering
+
+[1070]: https://dzone.com/articles/interacting-with-a-long-running-child-process-in-p
