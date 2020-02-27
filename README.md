@@ -290,8 +290,40 @@ pipenv run jupyter contrib nbextension install --user
 6. Run Jupyter notebook
 
 ```
-make jupyter-bn
+make jupyter-nb
 ```
+
+## Clickhouse client on Ubuntu
+
+1. Add Clickhouse GPG key
+
+```
+sudo apt-key adv --keyserver keyserver.ubuntu.com --recv E0C56BD4
+```
+
+2. Add repository to APT repository list
+
+```
+echo "deb http://repo.yandex.ru/clickhouse/deb/stable/ main/" | sudo tee /etc/apt/sources.list.d/clickhouse.list
+```
+
+2. Update packages
+
+```
+sudo apt update
+```
+
+3.Install clickhouse client
+
+```
+sudo apt install clickhouse-client
+```
+
+4. Start the clickhouse client
+export CH_SERVER=
+clickhouse-client -h $CH_SERVER -d default
+
+alter table flight delete where 1 = 1;
 
 ## AWS S3
 
@@ -338,3 +370,7 @@ source ./do_not_checkin/aws-setup.sh
 * Python [child processes][1070] buffering
 
 [1070]: https://dzone.com/articles/interacting-with-a-long-running-child-process-in-p
+
+* Python [pipes][1080]
+
+[1080]: https://lyceum-allotments.github.io/series/

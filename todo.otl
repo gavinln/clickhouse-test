@@ -21,4 +21,10 @@
 	[X] Get null count for fields in a table
 	[_] Get min, mean, max for numeric fields
 	[_] Get quantiles for numeric fields
+[_] Python child process load to Clickhouse
+	[_] Create test Python child process
+	[_] Read from csv and write to Python child process
+	[_] Read from S3 csv and write to Python child process
+	[_] Read from S3 csv and write to Clickhouse client as child
+	[_] Read from S3 parq and write to Clickhouse client as child
 
