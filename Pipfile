@@ -31,6 +31,7 @@ sqlalchemy-clickhouse = "*"
 ibis-framework = {extras = ["clickhouse"],version = "*"}
 jupytext = "*"
 awscli = "*"
+metaflow = "*"
 
 [requires]
 python_version = "3.7"

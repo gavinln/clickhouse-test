@@ -320,18 +320,36 @@ sudo apt install clickhouse-client
 ```
 
 4. Start the clickhouse client
+
+```
 export CH_SERVER=
 clickhouse-client -h $CH_SERVER -d default
+```
 
-alter table flight delete where 1 = 1;
-
-## AWS S3
+## AWS command line setup
 
 1. Setup AWS configuration
-source ./do_not_checkin/aws-setup.sh
 
+```
+source ./do_not_checkin/s3-user-setup.sh
+```
 
+2. Setup AWS completion
 
+```
+complete -C aws_completer aws
+```
+
+### AWS spot instances
+
+1. Describe spot price history
+
+```
+aws ec2 describe-spot-price-history --instance-types t3.2xlarge
+```
+
+2. Copy file from S3 - 11 seconds
+aws s3 cp s3://airline-parq/2008_cleaned.gzip.parq .
 
 ## Links
 
