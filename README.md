@@ -71,35 +71,24 @@ vagrant plugin install vagrant-disksize
 vagrant ssh
 ```
 
-4. Change to the root directory
+4. Change to the clickhouse directory
 
 ```
-cd /vagrant
+cd /vagrant/clickhouse
 ```
 
-5. Install clickhouse client
-
+5. Start the Clickhouse database
 
 ```
-sudo apt-key adv --keyserver keyserver.ubuntu.com --recv E0C56BD4
-echo "deb http://repo.yandex.ru/clickhouse/deb/stable/ main/" | sudo tee /etc/apt/sources.list.d/clickhouse.list
-sudo apt update
-sudo apt install -y clickhouse-client
+docker-compose up -d
 ```
 
-6. Start the clickhouse client
+### Connect to clickhouse
+
+1. Start the clickhouse client
 
 ```
 clickhouse-client -m 
-```
-
-### Connect to the server
-
-1. Start the clickhouse-client
-
-```
-# -m for multiline mode (end query with semicolon) 
-docker exec -it ch-server /usr/bin/clickhouse-client -m 
 ```
 
 2. List databases
@@ -108,19 +97,31 @@ docker exec -it ch-server /usr/bin/clickhouse-client -m
 show databases;
 ```
 
-3. Create a database
+3. Use a database
+
+```
+use default
+```
+
+4. List tables in database
+
+```
+show tables
+```
+
+5. Create a database
 
 ```
 CREATE DATABASE test;
 ```
 
-4. Use the new database
+6. Use the new database
 
 ```
 USE test;
 ```
 
-5. Create a table
+7. Create a table
 
 ```sql
 CREATE TABLE visits (
@@ -133,7 +134,7 @@ PRIMARY KEY id
 ORDER BY id;
 ```
 
-6. Insert data into tables
+8. Insert data into tables
 
 ```sql
 INSERT INTO visits VALUES (1, 10.5, 'http://example.com',
@@ -146,7 +147,7 @@ INSERT INTO visits VALUES (4, 2, 'http://example3.com',
     '2019-01-04 02:01:01');
 ```
 
-7. Query the table
+9. Query the table
 
 ```sql
 SELECT url, duration
@@ -154,25 +155,25 @@ FROM visits
 WHERE url = 'http://example2.com' LIMIT 2;
 ```
 
-9. Run an aggregation query
+10. Run an aggregation query
 
 ```sql
 SELECT SUM(duration) FROM visits;
 ```
 
-10. Run a query that returns an array
+11. Run a query that returns an array
 
 ```sql
 SELECT topK(2) (url) FROM visits;
 ```
 
-11. Drop the table
+12. Drop the table
 
 ```sql
 DROP table visits;
 ```
 
-12. Drop the database
+13. Drop the database
 
 ```sql
 DROP database test;

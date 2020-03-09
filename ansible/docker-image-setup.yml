@@ -9,7 +9,7 @@
     name: yandex/clickhouse-server
     source: pull
 
-- name: pull clickhouse client
+- name: pull clickhouse client (not needed as installed without Docker)
   docker_image:
     name: yandex/clickhouse-client
     source: pull
