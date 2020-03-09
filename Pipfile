@@ -32,6 +32,8 @@ ibis-framework = {extras = ["clickhouse"],version = "*"}
 jupytext = "*"
 awscli = "*"
 metaflow = "*"
+seaborn = "*"
+scikit-learn = "*"
 
 [requires]
 python_version = "3.7"
