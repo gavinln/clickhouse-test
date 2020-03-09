@@ -15,5 +15,5 @@ connect:  ## connect to gavinsvr
 jupyter-nb:  ## start jupyter notebook
 	bash $(SCRIPT_DIR)/scripts/jupyter-nb.sh
 
-tmux:
+tmux:  ## start tmux
 	tmuxp load tmux.yaml
