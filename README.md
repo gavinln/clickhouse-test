@@ -393,3 +393,19 @@ aws s3 cp s3://airline-parq/2008_cleaned.gzip.parq .
 * Python [pipes][1080]
 
 [1080]: https://lyceum-allotments.github.io/series/
+
+* Clickhouse [machine learning][1090]
+
+[1090]: https://presentations.clickhouse.tech/meetup40/ml.pdf
+
+* Clickhouse at [Infovista][1100]
+
+[1100]: https://github.com/ClickHouse/clickhouse-presentations/blob/master/meetup30/infovista.pdf
+
+* Clickhouse at [Messagebird][1110]
+
+[1110]: https://github.com/ClickHouse/clickhouse-presentations/blob/master/meetup20/messagebird.pdf
+
+* Clickhouse [funnel analysis][1120]
+
+[1120]: https://github.com/ClickHouse/clickhouse-presentations/blob/master/meetup33/ximalaya.pdf
