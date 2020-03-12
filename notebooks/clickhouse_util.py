@@ -6,7 +6,10 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy import func
 
 import numpy
-import pandas
+import pandas as pd
+
+from humanize import intcomma
+from humanize import intword
 
 from typing import List
 
@@ -113,13 +116,13 @@ pandas_types = (
 
 def get_pandas_types():
     types = {}
-    for name, data in inspect.getmembers(pandas, inspect.isclass):
+    for name, data in inspect.getmembers(pd, inspect.isclass):
         if name in pandas_types:
             types[name] = data
     return types
 
 
-clickhouse_types = (
+clickhmpoouse_types = (
     'Boolean',
     'Date',
     'DateTime',
@@ -213,3 +216,49 @@ def get_clickhouse_create_sql(df, table_name, sorting_keys: List[str]) -> str:
         field_lines.append(field_line)
     create_suffix = ')\nEngine = MergeTree\nOrder by {}'.format(sorting_key)
     return create_prefix + ',\n'.join(field_lines) + '\n' + create_suffix
+
+
+def shape_approx(df):
+    rows, cols = df.shape
+    print('rows: {}, cols: {}'.format(intword(rows), intword(cols)))
+
+
+# @pd.api.extensions.register_dataframe_accessor("meta")
+# class MetaAccessor:
+#     def __init__(self, pandas_obj):
+#         self._validate(pandas_obj)
+#         self._obj = pandas_obj
+#     @staticmethod
+#     def _validate(obj):
+#         # validate pandas object
+#         pass
+#     @property
+#     def shape_(self):
+#         row, col = self._obj.shape
+#         return '{} rows, {} cols'.format(intword(row), intword(col))
+#     def plot_(self):
+#         pass
+
+
+def shape(df):
+    row, col = df.shape
+    return '{} rows, {} cols'.format(intword(row), intword(col))
+
+
+def dtype_counts_frame(df):
+    return df.dtypes.value_counts(
+        ).rename_axis('dtype').to_frame('counts').reset_index()
+
+
+def dtype_counts(df):
+    return df.dtypes.value_counts(
+            ).apply(lambda count: '{:,d}'.format(count))
+
+
+def na_counts(df):
+    return df.isna().sum(
+            ).apply(lambda count: '{:,d}'.format(count))
+
+
+# srs = pd.Series(np.arange(-0.2, 1.4, 0.2))
+# srs - srs.apply(int)
