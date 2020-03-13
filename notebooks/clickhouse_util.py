@@ -251,13 +251,26 @@ def dtype_counts_frame(df):
 
 
 def dtype_counts(df):
+    """
+    Number of columns of each type
+    """
+    return df.dtypes.value_counts()
     return df.dtypes.value_counts(
             ).apply(lambda count: '{:,d}'.format(count))
 
 
 def na_counts(df):
-    return df.isna().sum(
-            ).apply(lambda count: '{:,d}'.format(count))
+    """
+    Number of missing values in each column
+    """
+    return df.isna().sum()
+
+
+def na_col_counts(df):
+    """
+    Number of columns with each quantity of missing values
+    """
+    return na_counts(df).value_counts().sort_index()
 
 
 # srs = pd.Series(np.arange(-0.2, 1.4, 0.2))
