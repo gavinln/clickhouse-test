@@ -257,6 +257,33 @@ exit;
 python3 ./python/clickhouse-airline-parquet.py
 ```
 
+### Materialized view
+
+1. Create year
+
+```
+create materialized view flight_view2
+engine = AggregatingMergeTree() ORDER BY (Origin, Dest, Year, Month)
+populate
+as select
+    Origin, Dest, Year, Month,
+    countState() as count_All
+from flight
+group by Origin, Dest, Year, Month
+```
+
+### Metadata queries
+
+```
+select
+    table, count(*) as columns,
+    sum(data_compressed_bytes) as tc,
+    sum(data_uncompressed_bytes) as tu
+from system.columns
+where database = currentDatabase()
+group by table
+```
+
 ## Run Jupyter notebooks
 
 1. Setup the Python version

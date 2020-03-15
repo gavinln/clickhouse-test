@@ -54,7 +54,7 @@ Vagrant.configure("2") do |config|
   config.vm.define "clickhouse-test", autostart: true do |machine|
     machine.vm.provider "virtualbox" do |vb|
       # vb.gui = true
-      vb.memory = "8192"
+      vb.memory = "4192"
       vb.cpus = "2"
     end
 
