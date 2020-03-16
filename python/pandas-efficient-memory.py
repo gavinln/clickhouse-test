@@ -246,6 +246,14 @@ def temp():
     pass
 
 
+def main2():
+    temp_parq = (SCRIPT_DIR / '..' / 'temp.parq').resolve()
+    df = pd.read_parquet(temp_parq)
+
+    with timed():
+        print(df[['Origin', 'Dest']].groupby(['Origin', 'Dest']).agg(np.size))
+
+
 def main() -> None:
     print('in main')
     data_file = (
@@ -307,4 +315,4 @@ def main() -> None:
 
 
 if __name__ == '__main__':
-    main()
+    main2()
