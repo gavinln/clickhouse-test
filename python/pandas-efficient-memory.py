@@ -1,5 +1,4 @@
 '''
-
 Handling large data in Pandas 10 million to 100 million Pandas is built on
 numpy. Numpy can work with numeric data like integers and floats very
 efficiently. Pandas can store a much wider range of objects than numpy which
@@ -26,10 +25,9 @@ import numpy as np
 import pandas as pd
 
 import pyarrow.parquet as pq
-import pyarrow as pa
 
 from humanize import intword
-from IPython import embed
+# from IPython import embed
 
 
 logging.basicConfig(level=logging.INFO)
@@ -52,67 +50,12 @@ def timed():
         dt.fromtimestamp(end), end - start))
 
 
-# @pd.api.extensions.register_dataframe_accessor("meta")
-# class MetaAccessor:
-#     def __init__(self, pandas_obj):
-#         self._validate(pandas_obj)
-#         self._obj = pandas_obj
-#     @staticmethod
-#     def _validate(obj):
-#         # validate pandas object
-#         pass
-#     @property
-#     def shape_(self):
-#         row, col = self._obj.shape
-#         return '{} rows, {} cols'.format(intword(row), intword(col))
-#     def plot_(self):
-#         pass
-
-
 def write_parquet(df, parq_file):
     df.to_parquet(parq_file)
 
 
 def write_parquet_gzip(df, parq_file):
     df.to_parquet(parq_file, compression='gzip')
-
-
-def shape(df):
-    row, col = df.shape
-    return '{} rows, {} cols'.format(intword(row), intword(col))
-
-
-def dtype_counts_frame(df):
-    return df.dtypes.value_counts(
-        ).rename_axis('dtype').to_frame('counts').reset_index()
-
-
-def dtype_counts(df):
-    return df.dtypes.value_counts()
-
-
-def na_counts(df):
-    return df.isna().sum()
-
-
-def na_column_counts(df):
-    return na_counts(df).value_counts().sort_index()
-
-
-def select_ints(df):
-    return df.select_dtypes(include=np.int_)
-
-
-def select_floats(df):
-    return df.select_dtypes(include=np.float_)
-
-
-def mem_usage(df):
-    return intword(df.memory_usage(deep=True).sum())
-
-
-def fraction_part_abs_max(srs):
-    return (srs - srs.round()).abs().max()
 
 
 def boolean_series_null():
@@ -141,12 +84,12 @@ def boolean_series_null():
 
 def boolean_memory_series():
     """
-    >>> srs = pd.Series([True, False, None] * 4_000)
-    >>> srs.memory_usage(deep=True)
-    368128
     >>> srs = pd.Series([True, False] * 6_000, dtype='bool')
     >>> srs.memory_usage(deep=True)
     12128
+    >>> srs = pd.Series([True, False, None] * 4_000)
+    >>> srs.memory_usage(deep=True)
+    368128
     >>> srs = pd.Series([True, False, None] * 4_000, dtype='boolean')
     >>> srs.memory_usage(deep=True)
     24128
@@ -174,19 +117,6 @@ def int_null_series():
 
 def int_memory_series():
     """
-    >>> # memory used with null values
-    >>> srs = pd.Series([1, 2, None] * 4_000, dtype='Int64')
-    >>> srs.memory_usage(deep=True), srs.dtypes
-    (108128, Int64Dtype())
-    >>> srs = pd.Series([1, 2, None] * 4_000)
-    >>> srs.memory_usage(deep=True), srs.dtypes
-    (96128, dtype('float64'))
-    >>> srs = pd.Series([1, 2, None] * 4_000, dtype='float16')
-    >>> srs.memory_usage(deep=True), srs.dtypes
-    (24128, dtype('float16'))
-    >>> srs = pd.Series([1, 2, None] * 4_000, dtype='Int8')
-    >>> srs.memory_usage(deep=True), srs.dtypes
-    (24128, Int8Dtype())
     >>> # memory used without null values
     >>> srs = pd.Series([1, 2] * 6_000, dtype='int64')
     >>> srs.memory_usage(deep=True), srs.dtypes
@@ -194,14 +124,22 @@ def int_memory_series():
     >>> srs = pd.Series([1, 2] * 6_000, dtype='int8')
     >>> srs.memory_usage(deep=True), srs.dtypes
     (12128, dtype('int8'))
+    >>> # memory used with null values
+    >>> srs = pd.Series([1, 2, None] * 4_000)
+    >>> srs.memory_usage(deep=True), srs.dtypes
+    (96128, dtype('float64'))
+    >>> srs = pd.Series([1, 2, None] * 4_000, dtype='float16')
+    >>> srs.memory_usage(deep=True), srs.dtypes
+    (24128, dtype('float16'))
+    >>> srs = pd.Series([1, 2, None] * 4_000, dtype='Int64')
+    >>> srs.memory_usage(deep=True), srs.dtypes
+    (108128, Int64Dtype())
+    >>> srs = pd.Series([1, 2, None] * 4_000, dtype='Int8')
+    >>> srs.memory_usage(deep=True), srs.dtypes
+    (24128, Int8Dtype())
     """
     pass
 
-
-# TODO: See infer_objects
-# TODO: Add code separately in addition to documentation
-# TODO: Put simplest option first: no None, with None
-# TODO: Put numpy types first then pandas types
 
 def string_null_series():
     srs = pd.Series(['A', 'B'] * 6_000)
@@ -212,6 +150,12 @@ def string_null_series():
     srs.memory_usage(deep=True), srs.dtypes  # (624128, dtype('O'))
     srs = pd.Series(['A', 'B', None] * 4_000, dtype='string')
     srs.memory_usage(deep=True), srs.dtypes  # (96128, StringDtype)
+
+
+# TODO: See infer_objects
+# TODO: Add code separately in addition to documentation
+# TODO: Put simplest option first: no None, with None
+# TODO: Put numpy types first then pandas types
 
 
 def print_parq_file_info(parq_file):
@@ -244,14 +188,6 @@ def temp():
     #     lambda srs: [srs.min(), srs.max()],
     #     axis='index', result_type='expand').transpose()
     pass
-
-
-def main2():
-    temp_parq = (SCRIPT_DIR / '..' / 'temp.parq').resolve()
-    df = pd.read_parquet(temp_parq)
-
-    with timed():
-        print(df[['Origin', 'Dest']].groupby(['Origin', 'Dest']).agg(np.size))
 
 
 def main() -> None:
@@ -315,4 +251,4 @@ def main() -> None:
 
 
 if __name__ == '__main__':
-    main2()
+    main()
