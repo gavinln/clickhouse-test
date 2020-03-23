@@ -436,3 +436,11 @@ aws s3 cp s3://airline-parq/2008_cleaned.gzip.parq .
 * Clickhouse [funnel analysis][1120]
 
 [1120]: https://github.com/ClickHouse/clickhouse-presentations/blob/master/meetup33/ximalaya.pdf
+
+* Clickhouse [discussion][1130]
+
+[1130]: https://news.ycombinator.com/item?id=22457767
+
+* Clickhouse [administration][1140]
+
+[1140]: https://www.nedmcclain.com/why-devops-love-clickhouse/

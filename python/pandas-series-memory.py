@@ -1,16 +1,3 @@
-'''
-Handling large data in Pandas: 10 million to 100 million rows.
-
-Pandas is built on numpy. Numpy can work with numeric data like integers and
-floats very efficiently. Pandas can store a wider range of objects types than
-numpy including numeric data, strings, dates and times. However the non-numpy
-types are not stored very efficiently.
-
-In the latest versions of pandas (around 1.0) more efficient pandas types were
-introduced. By default pandas reads data using a combination of efficient
-numeric numpy types and inefficient pandas object types. Use the convert_dtypes
-function to convert default pandas data frame types to more efficent types.
-'''
 import logging
 from pathlib import Path
 from contextlib import contextmanager
@@ -23,7 +10,7 @@ import pandas as pd
 import pyarrow.parquet as pq
 
 from humanize import intword
-# from IPython import embed
+from IPython import embed
 
 
 logging.basicConfig(level=logging.INFO)
