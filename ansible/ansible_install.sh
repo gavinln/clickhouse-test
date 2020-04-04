@@ -25,11 +25,14 @@ if ! command -v ansible >/dev/null; then
     exit 1;
   fi
 
+  apt-get update
+
   echo "Installing pip."
-  sudo apt-get update
-  sudo apt-get install -y python3-distutils
-  wget https://bootstrap.pypa.io/get-pip.py
-  python3 get-pip.py && rm -f get-pip.py
+  apt-get install -y python3-distutils
+  apt-get install -y python3-pip
+
+  # wget https://bootstrap.pypa.io/get-pip.py
+  # python3 get-pip.py && rm -f get-pip.py
 
   # Install GCC / required build tools.
   # if [[ ! -z $YUM ]]; then
@@ -42,5 +45,6 @@ if ! command -v ansible >/dev/null; then
   pip3 install paramiko pyyaml jinja2 markupsafe
 
   echo "Installing Ansible."
+  pip3 install -U pip
   pip3 install ansible==$ANSIBLE_VERSION
 fi

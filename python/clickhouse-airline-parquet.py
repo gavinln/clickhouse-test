@@ -14,6 +14,8 @@ import pandas as pd
 
 import sqlalchemy as sa
 
+from IPython import embed
+
 
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger(__name__)
@@ -47,7 +49,10 @@ def get_parquet_column_types(parq_files):
 
 
 def execute_sql(sql):
-    engine = sa.create_engine('clickhouse://default@10.0.0.2:8123/default')
+    host = '10.0.0.2'
+    host = '127.0.0.1'
+    engine = sa.create_engine(
+        'clickhouse://default@{}:8123/default'.format(host))
     with engine.begin() as connection:
         result = connection.execute(sql)
         print(result.fetchall())
@@ -138,8 +143,8 @@ def main() -> None:
     '''
     parq_file_dir = (
         SCRIPT_DIR / '..' / 'clickhouse' / 'airline-data').resolve()
-    create_flight_table()
-    create_flight_view()
+    # create_flight_table()
+    # create_flight_view()
     parq_files = parq_file_dir.glob('*_cleaned.gzip.parq')
 
     for parq_file in sorted(list(parq_files)):

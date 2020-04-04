@@ -8,9 +8,6 @@ from sqlalchemy import func
 import numpy
 import pandas as pd
 
-from humanize import intcomma
-from humanize import intword
-
 from typing import List
 
 
@@ -25,8 +22,7 @@ def get_null_count(conn_str, table):
     session = Session()
 
     col_names = [col.name for col in tbl.columns]
-    null_sums = [
-        func.sum(tbl.c[name].is_(None)) for name in col_names]
+    null_sums = [func.sum(tbl.c[name].is_(None)) for name in col_names]
 
     qry = session.query(*null_sums)
     return dict(zip(col_names, qry.first()))
@@ -45,46 +41,45 @@ numpy_types = (
     'longlong',  # long long - Platform-defined
     'ulonglong',  # unsigned long long - Platform-defined
     'half',  # Half - precision float: sign bit, 5 bits exponent,
-             # 10 bits mantissa
+    # 10 bits mantissa
     'float16',  # Half - precision float: sign bit, 5 bits exponent,
-             # 10 bits mantissa
+    # 10 bits mantissa
     'single',  # float - Platform-defined single precision float: typically
-             # sign bit, 8 bits exponent, 23 bits mantissa
+    # sign bit, 8 bits exponent, 23 bits mantissa
     'double',  # double - Platform-defined double precision float: typically
-             # sign bit, 11 bits exponent, 52 bits mantissa.
+    # sign bit, 11 bits exponent, 52 bits mantissa.
     'longdouble',  # long double - Platform-defined extended-precision float
     'csingle',  # float complex - Complex number, represented by two
-                # single-precision floats (real and imaginary components)
+    # single-precision floats (real and imaginary components)
     'cdouble',  # double complex - Complex number, represented by two
-                # double-precision floats (real and imaginary components).
+    # double-precision floats (real and imaginary components).
     'clongdouble',  # long double complex - Complex number, represented by
-                    # two extended-precision floats (real and imaginary
-                    # components).
+    # two extended-precision floats (real and imaginary
+    # components).
     'int8',  # int8_t  - Byte (-128 to 127)
     'int16',  # int16_t  - Integer (-32768 to 32767)
     'int32',  # int32_t  - Integer (-2147483648 to 2147483647)
     'int64',  # int64_t  - Integer (-9223372036854775808 to
-              # 9223372036854775807)
+    # 9223372036854775807)
     'uint8',  # uint8_t  - Unsigned integer (0 to 255)
     'uint16',  # uint16_t  - Unsigned integer (0 to 65535)
     'uint32',  # uint32_t  - Unsigned integer (0 to 4294967295)
     'uint64',  # uint64_t  - Unsigned integer (0 to 18446744073709551615)
     'intp',  # intptr_t  - Integer used for indexing, typically the same as
-             # ssize_t
+    # ssize_t
     'uintp',  # uintptr_t  - Integer large enough to hold a pointer
     'float32',  # float
     'float64',  # double  - Note that this matches the precision of the
-                # builtin python float.
+    # builtin python float.
     'float_',  # double  - Note that this matches the precision of the builtin
-               # python float.
+    # python float.
     'complex64',  # float complex  - Complex number, represented by two 32-bit
-                  # floats (real and imaginary components)
+    # floats (real and imaginary components)
     'complex128',  # double complex  - Note that this matches the precision of
-                   # the builtin python complex.
+    # the builtin python complex.
     'complex_',  # double complex  - Note that this matches the precision of
-                 # the builtin python complex.
-    'object_'
-)
+    # the builtin python complex.
+    'object_')
 
 
 def get_numpy_types():
@@ -95,23 +90,10 @@ def get_numpy_types():
     return types
 
 
-pandas_types = (
-    'BooleanDtype',
-    'CategoricalDtype',
-    'DatetimeTZDtype',
-    'Int16Dtype',
-    'Int32Dtype',
-    'Int64Dtype',
-    'Int8Dtype',
-    'IntervalDtype',
-    'PeriodDtype',
-    'SparseDtype',
-    'StringDtype',
-    'UInt16Dtype',
-    'UInt32Dtype',
-    'UInt64Dtype',
-    'UInt8Dtype'
-)
+pandas_types = ('BooleanDtype', 'CategoricalDtype', 'DatetimeTZDtype',
+                'Int16Dtype', 'Int32Dtype', 'Int64Dtype', 'Int8Dtype',
+                'IntervalDtype', 'PeriodDtype', 'SparseDtype', 'StringDtype',
+                'UInt16Dtype', 'UInt32Dtype', 'UInt64Dtype', 'UInt8Dtype')
 
 
 def get_pandas_types():
@@ -122,22 +104,9 @@ def get_pandas_types():
     return types
 
 
-clickhmpoouse_types = (
-    'Boolean',
-    'Date',
-    'DateTime',
-    'Float32',
-    'Float64',
-    'UInt8',
-    'UInt16',
-    'UInt32',
-    'UInt64',
-    'Int8',
-    'Int16',
-    'Int32',
-    'Int64',
-    'String'
-)
+clickhouse_types = ('Boolean', 'Date', 'DateTime', 'Float32', 'Float64',
+                    'UInt8', 'UInt16', 'UInt32', 'UInt64', 'Int8', 'Int16',
+                    'Int32', 'Int64', 'String')
 
 
 def get_clickhouse_types():
@@ -211,67 +180,7 @@ def get_clickhouse_create_sql(df, table_name, sorting_keys: List[str]) -> str:
         field_type = get_clickhouse_type(numpy_type.type)
         nullable = False if col_name in sorting_key else True
         nullable_type = get_nullable_type(field_type, nullable)
-        field_line = '\t{} {}'.format(
-            col_name, nullable_type)
+        field_line = '\t{} {}'.format(col_name, nullable_type)
         field_lines.append(field_line)
     create_suffix = ')\nEngine = MergeTree\nOrder by {}'.format(sorting_key)
     return create_prefix + ',\n'.join(field_lines) + '\n' + create_suffix
-
-
-def shape_approx(df):
-    rows, cols = df.shape
-    print('rows: {}, cols: {}'.format(intword(rows), intword(cols)))
-
-
-# @pd.api.extensions.register_dataframe_accessor("meta")
-# class MetaAccessor:
-#     def __init__(self, pandas_obj):
-#         self._validate(pandas_obj)
-#         self._obj = pandas_obj
-#     @staticmethod
-#     def _validate(obj):
-#         # validate pandas object
-#         pass
-#     @property
-#     def shape_(self):
-#         row, col = self._obj.shape
-#         return '{} rows, {} cols'.format(intword(row), intword(col))
-#     def plot_(self):
-#         pass
-
-
-def shape(df):
-    row, col = df.shape
-    return '{} rows, {} cols'.format(intword(row), intword(col))
-
-
-def dtype_counts_frame(df):
-    return df.dtypes.value_counts(
-        ).rename_axis('dtype').to_frame('counts').reset_index()
-
-
-def dtype_counts(df):
-    """
-    Number of columns of each type
-    """
-    return df.dtypes.value_counts()
-    return df.dtypes.value_counts(
-            ).apply(lambda count: '{:,d}'.format(count))
-
-
-def na_counts(df):
-    """
-    Number of missing values in each column
-    """
-    return df.isna().sum()
-
-
-def na_col_counts(df):
-    """
-    Number of columns with each quantity of missing values
-    """
-    return na_counts(df).value_counts().sort_index()
-
-
-# srs = pd.Series(np.arange(-0.2, 1.4, 0.2))
-# srs - srs.apply(int)

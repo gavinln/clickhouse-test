@@ -54,16 +54,21 @@ Vagrant.configure("2") do |config|
   config.vm.define "clickhouse-test", autostart: true do |machine|
     machine.vm.provider "virtualbox" do |vb|
       # vb.gui = true
-      vb.memory = "8192"
+      vb.memory = "4096"
       vb.cpus = "2"
     end
 
     machine.vm.hostname = "clickhouse-test"
     # machine.vm.network "private_network", ip: "192.168.33.10"
-    machine.vm.network "public_network"
+    machine.vm.network "public_network", bridge: "Wireless LAN adapter Wi-Fi"
+
+    # machine specific settings
+    if Socket.gethostname.eql? 'gavinnb2'
+    end
 
     machine.vm.provision "shell" do |sh|
       sh.path = "ansible/ansible_install.sh"
+      # sudo ansible-galaxy install -r /vagrant/ansible/requirements.yml -p /vagrant/ansible/roles/
     end
 
     machine.vm.provision "ansible_local" do |ansible|
@@ -72,8 +77,11 @@ Vagrant.configure("2") do |config|
       ansible.install_mode = "pip"
       ansible.version = "2.9.5"
       ansible.provisioning_path = "/vagrant/ansible"
-      ansible.galaxy_role_file = "requirements.yml"
-      ansible.galaxy_roles_path = "/vagrant/ansible/roles"
+
+      # following two lines do not work property on Windows
+      # ansible.galaxy_role_file = "requirements.yml"
+      # ansible.galaxy_roles_path = "/vagrant/ansible/roles"
+
       ansible.playbook = "playbook.yml"
       ansible.extra_vars = {
         ansible_python_interpreter: "/usr/bin/python3"

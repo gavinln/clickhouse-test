@@ -13,11 +13,12 @@
 
   roles:
     - geerlingguy.ntp
-    - angstwad.docker_ubuntu
+    - role: geerlingguy.docker
 
   tasks:
     - import_tasks: init-setup.yml
     - import_tasks: cli-setup.yml
+    - import_tasks: clickhouse-setup.yml
     - import_tasks: python3-setup.yml
     - import_tasks: python3-math-setup.yml
     - import_tasks: docker-setup.yml
