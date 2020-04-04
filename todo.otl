@@ -17,6 +17,8 @@
 [X] Access clickhouse data using ibis
 	[X] Install ibis
 	[X] Access clickhouse using ibis
+[_] Install Clickhouse using deb repo instead of Docker
+	See links to Digital Ocean in README.md
 [_] Create clickhouse_utils
 	[X] Get null count for fields in a table
 	[_] Get min, mean, max for numeric fields

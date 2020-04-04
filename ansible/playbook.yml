@@ -11,13 +11,14 @@
       apt: update_cache=yes cache_valid_time=3600
       become: yes
 
-  # roles:
-  #   - geerlingguy.ntp
-  #   - role: geerlingguy.docker
+  roles:
+    # - role: geerlingguy.ntp
+    - role: geerlingguy.docker
 
   tasks:
     - import_tasks: init-setup.yml
     - import_tasks: cli-setup.yml
+    - import_tasks: clickhouse-setup.yml
     - import_tasks: python3-setup.yml
     - import_tasks: python3-math-setup.yml
     - import_tasks: docker-setup.yml

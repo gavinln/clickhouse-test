@@ -1,0 +1,16 @@
+---
+- name: Add clickhouse signing key
+  apt_key:
+    keyserver: keyserver.ubuntu.com
+    id: E0C56BD4
+
+- apt_repository:
+    repo: "deb http://repo.yandex.ru/clickhouse/deb/stable/ main/"
+    state: present
+
+- name: install clickhouse-client
+  apt: name="clickhouse-client" state=present
+
+- name: install clickhouse-server
+  apt: name="clickhouse-server" state=present
+
