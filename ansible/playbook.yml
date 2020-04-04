@@ -1,6 +1,6 @@
 ---
 - hosts: all
-  become: true
+  become: yes
   gather_facts: yes
 
   vars_files:
@@ -13,7 +13,7 @@
 
   roles:
     - geerlingguy.ntp
-    - role: geerlingguy.docker
+    - angstwad.docker_ubuntu
 
   tasks:
     - import_tasks: init-setup.yml
