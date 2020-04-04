@@ -42,7 +42,7 @@ if ! command -v ansible >/dev/null; then
   # fi
 
   echo "Installing required python modules."
-  # pip install paramiko pyyaml jinja2 markupsafe
+  pip3 install paramiko pyyaml jinja2 markupsafe
 
   echo "Installing Ansible."
   pip3 install -U pip
