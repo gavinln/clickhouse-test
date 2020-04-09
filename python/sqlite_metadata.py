@@ -15,6 +15,16 @@ import fire
 
 from sqlite_metadata_lib import query_yes_no
 
+'''
+table
+    designed for writing not reading
+    duplicate columns
+    redundant data; one column derived from another
+    non-null missing
+    unsuitable column names
+    seconds instead of date time
+    relative time instead of absolute time
+'''
 
 logging.basicConfig(level=logging.WARNING)
 log = logging.getLogger(__name__)
