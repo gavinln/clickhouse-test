@@ -17,7 +17,6 @@ from contextlib import contextmanager
 from time import time
 from datetime import datetime as dt
 
-# import numpy as np
 import textwrap
 
 import pandas as pd
@@ -79,19 +78,6 @@ def main() -> None:
 
     print('data size: {}'.format(df.shape))
 
-    with timed():
-        out_dir = SCRIPT_DIR / 'temp'
-        out_dir.mkdir(exist_ok=True)
-        csv_data_file = (out_dir / '1988_cleaned.csv').resolve()
-        print('writing csv file', csv_data_file)
-        df.to_csv(csv_data_file, index=False)
-
-    with timed():
-        parq_data_file = (SCRIPT_DIR / '..' / '1988_cleaned.parq').resolve()
-        print('writing parq file', parq_data_file)
-        write_parquet(df, parq_data_file)
-        print_parq_file_info(parq_data_file)
-
     df2 = df.convert_dtypes()
     print('size with pandas types', intword(df2.memory_usage(deep=True).sum()))
 
@@ -115,7 +101,7 @@ def main() -> None:
           intword(df6.memory_usage(deep=True).sum()))
 
     temp_parq = (SCRIPT_DIR / 'temp' / 'temp.parq').resolve()
-    write_parquet(df6, temp_parq)
+    write_parquet_gzip(df6, temp_parq)
 
     with timed():
         print_parq_file_info(temp_parq)
