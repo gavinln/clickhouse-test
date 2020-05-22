@@ -5,16 +5,11 @@ import logging
 from pathlib import Path
 import time
 
-from subprocess import Popen
-from subprocess import PIPE
-from subprocess import STDOUT
 from subprocess import check_output
 
 import pandas as pd
 
 import sqlalchemy as sa
-
-from IPython import embed
 
 
 logging.basicConfig(level=logging.INFO)

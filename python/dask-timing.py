@@ -31,10 +31,10 @@ def get_query(df):
 
 
 def main() -> None:
-    airline_data_dir = (
-        SCRIPT_DIR / '..' / 'clickhouse' / 'airline-data').resolve()
+    airline_data_dir = (SCRIPT_DIR / 'temp').resolve()
     airline_files = airline_data_dir.glob('*_cleaned.gzip.parq')
     df = dd.read_parquet(list(airline_files), engine='pyarrow')
+
     start_time = time.time()
     df2 = get_query(df)
     elapsed = time.time() - start_time
