@@ -11,6 +11,6 @@
 - name: install clickhouse-client
   apt: name="clickhouse-client" state=present
 
-- name: install clickhouse-server
-  apt: name="clickhouse-server" state=present
+# - name: install clickhouse-server
+#   apt: name="clickhouse-server" state=present
 

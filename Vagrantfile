@@ -15,7 +15,7 @@ Vagrant.configure("2") do |config|
   # config.vm.box = "ubuntu/xenial64"
   config.vm.box = "ubuntu/bionic64"
 
-  config.vm.box_version = "20190621.0.0"
+  config.vm.box_version = "20200901.0.0"
 
   # needs command: vagrant plugin install vagrant-disksize
   config.disksize.size = '15GB'
@@ -54,13 +54,14 @@ Vagrant.configure("2") do |config|
   config.vm.define "clickhouse-test", autostart: true do |machine|
     machine.vm.provider "virtualbox" do |vb|
       # vb.gui = true
-      vb.memory = "4096"
+      vb.memory = "10192"
       vb.cpus = "2"
     end
 
     machine.vm.hostname = "clickhouse-test"
     # machine.vm.network "private_network", ip: "192.168.33.10"
-    machine.vm.network "public_network", bridge: "Wireless LAN adapter Wi-Fi"
+    # machine.vm.network "public_network", bridge: "Wireless LAN adapter Wi-Fi"
+    machine.vm.network "public_network"
 
     # machine specific settings
     if Socket.gethostname.eql? 'gavinnb2'

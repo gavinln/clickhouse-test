@@ -2,7 +2,7 @@ version: '3'
 services:
   ch-server:
     hostname: ch-server
-    image: 'yandex/clickhouse-server:19.16.13.54'
+    image: 'yandex/clickhouse-server:20.7.2.30'
     container_name: ch-server
     ports:
       - '8123:8123'

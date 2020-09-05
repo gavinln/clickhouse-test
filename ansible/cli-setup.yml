@@ -43,12 +43,12 @@
 
 # install minio client (mc) an S3 compatible client
 # https://docs.min.io/docs/minio-client-quickstart-guide.html
-- name: download minio client
-  get_url:
-    url: https://dl.min.io/client/mc/release/linux-amd64/mc
-    dest: /usr/local/bin/mc
-    mode: u=rwx,g=rx,o=rx
-  register: mc_download
+# - name: download minio client
+#   get_url:
+#     url: https://dl.min.io/client/mc/release/linux-amd64/mc
+#     dest: /usr/local/bin/mc
+#     mode: u=rwx,g=rx,o=rx
+#   register: mc_download
 
 - name: Add clickhouse signing key
   apt_key:
