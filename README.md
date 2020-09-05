@@ -44,7 +44,6 @@ where database = 'default'
     and table = 'flight'
 ```
 
-
 ## Setup the machine
 
 All the software installed exceeds the standard 10GB size of the virtual

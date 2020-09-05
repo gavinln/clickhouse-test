@@ -4,8 +4,6 @@ Connect to clickhouse using sqlalchemy
 import logging
 from pathlib import Path
 
-import pandas as pd
-
 from clickhouse_driver import Client
 
 import sqlalchemy as sa

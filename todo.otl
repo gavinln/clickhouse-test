@@ -30,3 +30,10 @@
 	[_] Read from S3 csv and write to Clickhouse client as child
 	[_] Read from S3 parq and write to Clickhouse client as child
 
+[_] Update VM 2020-09-03
+	Update to Ubuntu 20.04 2020-09-03
+	Run sections in ./README.md
+		Metadata queries
+		Setup the machine
+		Load airline data
+
