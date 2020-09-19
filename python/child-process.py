@@ -2,7 +2,8 @@
 Inserting data into clickhouse using a child process
 DOES NOT WORK
 
-terminating with uncaught exception of type apache::thrift::TException: don't know what type:
+terminating with uncaught exception of type
+apache::thrift::TException: don't know what type:
 '''
 import logging
 import time

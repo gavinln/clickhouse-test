@@ -4,6 +4,8 @@ The airline data set is used which has about 123 million rows from 1987 to 2008
 import logging
 from pathlib import Path
 import time
+import sys
+from distutils.spawn import find_executable
 
 from subprocess import check_output
 
@@ -50,7 +52,17 @@ def execute_sql(sql):
         'clickhouse://default@{}:8123/default'.format(host))
     with engine.begin() as connection:
         result = connection.execute(sql)
-        print(result.fetchall())
+        for row in result:
+            print(row)
+
+
+def check_clickhouse_client():
+    ' return False if clickhouse-client is not available '
+    prg = find_executable('clickhouse-client')
+    if prg is None:
+        sys.exit('Cannot find clickhouse-client. Is it in the PATH?')
+    output = check_output('{} --version'.format(prg), shell=True)
+    print('Found {}'.format(output.decode('unicode_escape')))
 
 
 def create_flight_table():
@@ -138,8 +150,11 @@ def main() -> None:
     '''
     parq_file_dir = (
         SCRIPT_DIR / '..' / 'clickhouse' / 'airline-data').resolve()
-    # create_flight_table()
-    # create_flight_view()
+    create_flight_table()
+    create_flight_view()
+
+    check_clickhouse_client()
+
     parq_files = parq_file_dir.glob('*_cleaned.gzip.parq')
 
     for parq_file in sorted(list(parq_files)):

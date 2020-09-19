@@ -35,6 +35,7 @@ metaflow = "*"
 seaborn = "*"
 scikit-learn = "*"
 fire = "*"
+python-language-server = {extras = ["all"], version = "*"}
 
 [requires]
 python_version = "3.8"

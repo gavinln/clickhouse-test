@@ -8,8 +8,6 @@ from pathlib import Path
 
 from metaflow import S3
 
-from IPython import embed
-
 
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger(__name__)

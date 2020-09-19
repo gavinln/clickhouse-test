@@ -49,8 +49,6 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from IPython import embed
-
 
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger(__name__)

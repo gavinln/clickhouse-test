@@ -1,10 +1,5 @@
 import pandas as pd
 import sqlalchemy as sa
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy import func
-
-from IPython import embed
-
 
 import ibis
 
@@ -48,7 +43,6 @@ def ibis_interface(engine):
     # print(table.TailNum.count())
     # print(table.count())
     print(table.Origin.value_counts())
-    embed()
 
 
 def main():

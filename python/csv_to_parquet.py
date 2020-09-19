@@ -4,8 +4,6 @@ from pathlib import Path
 
 import pandas as pd
 
-from IPython import embed
-
 
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger(__name__)
