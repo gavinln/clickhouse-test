@@ -23,7 +23,19 @@ the VM is started.
 
 ## Metadata queries
 
-1. Get list of tables
+1. List databases
+
+```
+show databases;
+```
+
+2. Use the system database;
+
+```
+use system;
+```
+
+3. Get list of tables
 
 ```sql
 select database, name from tables where database = 'default';
@@ -350,7 +362,7 @@ sudo apt install clickhouse-client
 
 ```
 export CH_SERVER=
-clickhouse-client -h $CH_SERVER -d default
+clickhouse-client -h $CH_SERVER -d default -m  # multiline mode
 ```
 
 ## AWS command line setup
