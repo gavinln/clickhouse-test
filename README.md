@@ -374,6 +374,40 @@ export CH_SERVER=
 clickhouse-client -h $CH_SERVER -d default -m  # multiline mode
 ```
 
+## Duck DB
+
+### Duck DB cli
+
+1. Install Duck DB cli
+
+```
+wget https://github.com/cwida/duckdb/releases/download/v0.2.1/duckdb_cli-linux-amd64.zip
+```
+
+2. Unzip Duck DB cli
+
+```
+unzip duckdb_cli-linux-amd64.zip
+```
+
+3. Start Duck DB cli saving database in a file
+
+```
+./duckdb tmp3-duck.db
+```
+
+4.  Create a table by reading from a Parquet file
+
+```
+create table flight as select * from parquet_scan('test.parquet');
+```
+
+5. Exit cli
+
+```
+.quit
+```
+
 ## AWS command line setup
 
 1. Setup AWS configuration

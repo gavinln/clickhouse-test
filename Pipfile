@@ -36,6 +36,7 @@ seaborn = "*"
 scikit-learn = "*"
 fire = "*"
 python-language-server = {extras = ["all"], version = "*"}
+duckdb = "*"
 
 [requires]
 python_version = "3.8"
