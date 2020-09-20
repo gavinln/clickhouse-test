@@ -53,7 +53,7 @@ select database, table, name, type from columns where database = 'default';
 select database, table, name, type
 from columns
 where database = 'default'
-    and table = 'flight'
+    and table like 'flight%';
 ```
 
 ## Setup the machine
@@ -268,6 +268,15 @@ exit;
 python3 ./python/clickhouse-airline-parquet.py
 ```
 
+### Get airline data
+
+
+1. Get data in parquet format
+
+```
+clickhouse-client -h 10.0.0.2 -q 'select * from flight limit 1000000' -f Parquet > tmp.parq
+```
+
 ### Materialized view
 
 1. Create year
@@ -455,3 +464,9 @@ aws s3 cp s3://airline-parq/2008_cleaned.gzip.parq .
 * Clickhouse [administration][1140]
 
 [1140]: https://www.nedmcclain.com/why-devops-love-clickhouse/
+
+### Clickhouse videos
+
+* Introduction to [Clickhouse][1200]
+
+[1200]: https://www.youtube.com/watch?v=fGG9dApIhDU
