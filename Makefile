@@ -4,16 +4,22 @@ endif
 
 SCRIPT_DIR := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 
-.PHONY: help connect jupyter-nb
+.PHONY: help
 .DEFAULT_GOAL=help
 help:  ## help for this Makefile
 	@grep -E '^[a-zA-Z0-9_\-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
 
+.PHONY: connect 
 connect:  ## connect to gavinsvr 
 	bash $(SCRIPT_DIR)/scripts/connect.sh
 
-jupyter-nb:  ## start jupyter notebook
+.PHONY: jupyter-lab
+jupyter-lab:  ## start jupyter notebook
 	bash $(SCRIPT_DIR)/scripts/jupyter-nb.sh
+
+.PHONY: jupyter-nb
+jupyter-nb:  ## start jupyter notebook
+	bash $(SCRIPT_DIR)/scripts/jupyter-lab.sh
 
 tmux:  ## start tmux
 	tmuxp load tmux.yaml
