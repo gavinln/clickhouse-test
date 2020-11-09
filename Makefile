@@ -21,5 +21,13 @@ jupyter-lab:  ## start jupyter notebook
 jupyter-nb:  ## start jupyter notebook
 	bash $(SCRIPT_DIR)/scripts/jupyter-lab.sh
 
+.PHONY: clickhouse-start
+clickhouse-start:  ## start Clickhouse
+	@docker-compose -f clickhouse/docker-compose.yml up -d
+
+.PHONY: clickhouse-stop
+clickhouse-stop:  ## stop Clickhouse
+	docker-compose -f clickhouse/docker-compose.yml stop
+
 tmux:  ## start tmux
 	tmuxp load tmux.yaml
