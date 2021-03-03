@@ -504,3 +504,19 @@ aws s3 cp s3://airline-parq/2008_cleaned.gzip.parq .
 * Introduction to [Clickhouse][1200]
 
 [1200]: https://www.youtube.com/watch?v=fGG9dApIhDU
+
+### Clickhouse for logging
+
+[Uber engineering blog post][1210]
+
+[1210]: https://eng.uber.com/logging/
+
+### Clickhouse for funnel analysis
+
+[Clickhouse arrays - Part 1][1220]
+
+[1220]: https://altinity.com/blog/harnessing-the-power-of-clickhouse-arrays-part-1
+
+[Clickhouse arrays - Part 2][1230]
+
+[1230] https://altinity.com/blog/harnessing-the-power-of-clickhouse-arrays-part-2
