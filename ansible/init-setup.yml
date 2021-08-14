@@ -11,8 +11,8 @@
 - name: install psql common
   apt: name=postgresql-client-common state=present
 
-- name: install psql selected version (does not work well with Postgres 12)
-  apt: name=postgresql-client-10 state=present
+# - name: install psql selected version (does not work well with Postgres 12)
+#   apt: name=postgresql-client-10 state=present
 
 - name: install library for snappy compression
   apt: name=libsnappy-dev state=present

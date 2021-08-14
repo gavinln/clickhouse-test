@@ -61,13 +61,19 @@ where database = 'default'
 All the software installed exceeds the standard 10GB size of the virtual
 machine disk. Install the following plugin to resize the disk.
 
-1. List the vagrant plugins
+1. Check the Vagrantfile
+
+```
+vagrant validate
+```
+
+2. List the vagrant plugins
 
 ```
 vagrant plugin list
 ```
 
-2. Install the Vagrant [disksize][100] plugin
+3. Install the Vagrant [disksize][100] plugin
 
 ```
 vagrant plugin install vagrant-disksize
@@ -75,14 +81,27 @@ vagrant plugin install vagrant-disksize
 
 [100]: https://github.com/sprotheroe/vagrant-disksize
 
+3. Install the Vagrant [vbguest][100] plugin for virtualbox guest
 
-3. Login to the virtual machine
+```
+vagrant plugin install vagrant-vbguest
+```
+
+[100]: https://github.com/dotless-de/vagrant-vbguest
+
+4. Start the virtual machine
+
+```
+vagrant up
+```
+
+4. Login to the virtual machine
 
 ```
 vagrant ssh
 ```
 
-4. Change to the clickhouse directory
+5. Change to the clickhouse directory
 
 ```
 cd /vagrant/clickhouse
