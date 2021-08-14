@@ -1,36 +1,29 @@
 ---
-- name: Install tree
-  apt: name=tree state=present
+- name: Install unzip
+  package: name=unzip state=present
 
-- name: Install jid
-  apt: name=jid state=present
+# ncdu only on Debian
+- name: install ncdu to view disk usage using ncurses
+  package: name=ncdu state=present
 
-- name: Install ripgrep from .deb package
-  apt:
-    deb: https://github.com/BurntSushi/ripgrep/releases/download/11.0.2/ripgrep_11.0.2_amd64.deb
+- name: Install tree to view files as as tree
+  package: name=tree state=present
+
+- name: Install ripgrep to search within files
+  package: name=ripgrep state=present
     
-- name: Install fd from .deb package
-  apt:
-    deb: https://github.com/sharkdp/fd/releases/download/v7.4.0/fd_7.4.0_amd64.deb
+- name: Install fd to search files
+  package: name='fd-find' state=present
 
-- name: Install jq
+- name: Install jq to parse JSON
   apt: name=jq state=present
 
-- name: Install autojump
+- name: Install jid - json interactive debugger
+  apt: name=jid state=present
+
+- name: Install autojump to easily change directories
   apt: name=autojump state=present
   register: autojump_status
-
-- name: Install vifm 
-  apt: name=vifm state=present
-
-- name: Install sqlite3 cli
-  apt: name=sqlite3 state=present
-
-- name: Install tmuxp
-  apt: name=tmuxp state=present
-
-- name: Install Java jre
-  apt: name=default-jre state=present
 
 - name: copy autojump profile
   copy:
@@ -41,6 +34,21 @@
 - name: Install sqlite3 cli
   apt: name=sqlite3 state=present
 
+- name: Install tmuxp
+  apt: name=tmuxp state=present
+
+- name: Install neovim
+  apt: name=neovim state=present
+
+- name: Install vifm VI - file manager
+  apt: name=vifm state=present
+
+- name: Install tig
+  apt: name=tig state=present
+
+# - name: Install Java jre
+#   apt: name=default-jre state=present
+
 # install minio client (mc) an S3 compatible client
 # https://docs.min.io/docs/minio-client-quickstart-guide.html
 # - name: download minio client
@@ -49,8 +57,3 @@
 #     dest: /usr/local/bin/mc
 #     mode: u=rwx,g=rx,o=rx
 #   register: mc_download
-
-- name: Add clickhouse signing key
-  apt_key:
-    keyserver: keyserver.ubuntu.com
-    id: E0C56BD4
