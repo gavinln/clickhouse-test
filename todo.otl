@@ -17,8 +17,13 @@
 [X] Access clickhouse data using ibis
 	[X] Install ibis
 	[X] Access clickhouse using ibis
-[_] Install Clickhouse using deb repo instead of Docker
+[X] Install Clickhouse using deb repo instead of Docker
 	See links to Digital Ocean in README.md
+[X] Update VM 2020-09-03
+	[X] Update to latest verson of Ubuntu 18.04
+	[X] Run sections in ./README.md
+		[X] Metadata queries
+		[X] Setup the machine
 [_] Create clickhouse_utils
 	[X] Get null count for fields in a table
 	[_] Get min, mean, max for numeric fields
@@ -29,11 +34,7 @@
 	[_] Read from S3 csv and write to Python child process
 	[_] Read from S3 csv and write to Clickhouse client as child
 	[_] Read from S3 parq and write to Clickhouse client as child
-
-[X] Update VM 2020-09-03
-	Update to Ubuntu 20.04 does not work as cannot login to Vagrant box
-	[X] Update to latest verson of Ubuntu 18.04
-	[X] Run sections in ./README.md
-		[X] Metadata queries
-		[X] Setup the machine
+[_] AWS cli and minio 2021-08-14
+	[_] Install awscli
+	[_] Setup awscli to access minio
 

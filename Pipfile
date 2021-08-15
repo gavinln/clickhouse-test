@@ -13,6 +13,7 @@ mypy = "*"
 pandas = "*"
 sqlalchemy = "*"
 sqlalchemy-clickhouse = "*"
+awscli = "*"
 
 [dev-packages]
 
