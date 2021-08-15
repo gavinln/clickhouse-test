@@ -45,12 +45,26 @@ def get_parquet_column_types(parq_files):
     return dtypes_srs
 
 
-def execute_sql(sql):
+def get_clickhouse_engine():
     host = '10.0.0.2'
     host = '127.0.0.1'
     engine = sa.create_engine(
         'clickhouse://default@{}:8123/default'.format(host))
+    return engine
+
+
+def execute_sql(sql):
+    engine = get_clickhouse_engine()
     with engine.begin() as connection:
+        result = connection.execute(sql)
+        for row in result:
+            print(row)
+
+
+def print_databases():
+    engine = get_clickhouse_engine()
+    with engine.begin() as connection:
+        sql = 'show databases'
         result = connection.execute(sql)
         for row in result:
             print(row)
@@ -67,7 +81,7 @@ def check_clickhouse_client():
 
 def create_flight_table():
     sql = '''
-        create table flight (
+        create table if not exists flight (
             Year              Int16,
             Month             Int8,
             DayofMonth        Int16,
@@ -150,15 +164,26 @@ def main() -> None:
     '''
     parq_file_dir = (
         SCRIPT_DIR / '..' / 'clickhouse' / 'airline-data').resolve()
-    create_flight_table()
-    create_flight_view()
+
+    if not parq_file_dir.exists():
+        sys.exit(f'Parquet file directory {parq_file_dir} does not exist')
+
+    print('list of databases')
+    print_databases()
+
+    parq_files = list(parq_file_dir.glob('*_cleaned.gzip.parq'))
+    parq_file_count = len(parq_files)
+
+    print(f'There are {parq_file_count} files')
+
+    # create_flight_table()
+
+    # create_flight_view()
 
     check_clickhouse_client()
 
-    parq_files = parq_file_dir.glob('*_cleaned.gzip.parq')
-
-    for parq_file in sorted(list(parq_files)):
-        print('processing {}'.format(parq_file))
+    for idx, parq_file in enumerate(sorted(list(parq_files))):
+        print('processing {}/{} {}'.format(idx + 1, parq_file_count, parq_file))
         prg = 'clickhouse-client --query="INSERT INTO flight FORMAT Parquet"'
         output = check_output("cat {} | {}".format(parq_file, prg),
                               shell=True)

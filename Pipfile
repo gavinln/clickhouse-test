@@ -1,45 +1,20 @@
 [[source]]
-name = "pypi"
 url = "https://pypi.org/simple"
 verify_ssl = true
-
-[dev-packages]
+name = "pypi"
 
 [packages]
 ipython = "*"
-dask = {extras = ["distributed"],version = "*"}
+dask = "*"
 pytest = "*"
 flake8 = "*"
-mypy = "*"
 yapf = "*"
-psutil = "*"
-setproctitle = "*"
-jupyter-contrib-nbextensions = "*"
-toolz = "*"
-graphviz = "*"
-numba = "*"
-mimesis = "*"
-fsspec = "*"
-pyarrow = "*"
-humanize = "*"
-papermill = "*"
-black = "*"
+mypy = "*"
 pandas = "*"
 sqlalchemy = "*"
-jupyterlab = "==1.2.6"
 sqlalchemy-clickhouse = "*"
-ibis-framework = {extras = ["clickhouse"],version = "*"}
-jupytext = "*"
-awscli = "*"
-metaflow = "*"
-seaborn = "*"
-scikit-learn = "*"
-fire = "*"
-python-language-server = {extras = ["all"], version = "*"}
-duckdb = "*"
+
+[dev-packages]
 
 [requires]
 python_version = "3.8"
-
-[pipenv]
-allow_prereleases = true
