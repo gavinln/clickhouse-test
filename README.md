@@ -8,11 +8,11 @@
 ## About
 
 
-This project provides a [Ubuntu (18.04)][10] [Vagrant][20] Virtual Machine (VM)
+This project provides a [Ubuntu (20.04)][10] [Vagrant][20] Virtual Machine (VM)
 with [Clickhouse][30]. Clickhouse is is an open-source column-oriented DBMS
 (columnar database management system) for online analytical processing (OLAP).
 
-[10]: http://releases.ubuntu.com/18.04/
+[10]: http://releases.ubuntu.com/20.04/
 [20]: http://www.vagrantup.com/
 [30]: https://clickhouse.tech/
 
@@ -20,41 +20,6 @@ There are [Ansible][90] scripts that automatically install the software when
 the VM is started.
 
 [90]: https://www.ansible.com/
-
-## Metadata queries
-
-1. List databases
-
-```
-show databases;
-```
-
-2. Use the system database;
-
-```
-use system;
-```
-
-3. Get list of tables
-
-```sql
-select database, name from tables where database = 'default';
-```
-
-2. Get list of columns
-
-```sql
-select database, table, name, type from columns where database = 'default';
-```
-
-3. Get table and column names
-
-```sql
-select database, table, name, type
-from columns
-where database = 'default'
-    and table like 'flight%';
-```
 
 ## Setup the machine
 
@@ -73,14 +38,6 @@ vagrant validate
 vagrant plugin list
 ```
 
-3. Install the Vagrant [disksize][100] plugin
-
-```
-vagrant plugin install vagrant-disksize
-```
-
-[100]: https://github.com/sprotheroe/vagrant-disksize
-
 3. Install the Vagrant [vbguest][100] plugin for virtualbox guest
 
 ```
@@ -95,25 +52,25 @@ vagrant plugin install vagrant-vbguest
 vagrant up
 ```
 
-4. Login to the virtual machine
+5. Login to the virtual machine
 
 ```
 vagrant ssh
 ```
 
-5. Change to the clickhouse directory
+6. Change to the clickhouse directory
 
 ```
 cd /vagrant/clickhouse
 ```
 
-5. Start the Clickhouse database
+7. Start the Clickhouse database
 
 ```
-docker-compose up -d
+sudo service clickhouse-server restart
 ```
 
-### Connect to clickhouse
+### Example queries
 
 1. Start the clickhouse client
 
@@ -142,13 +99,13 @@ show tables
 5. Create a database
 
 ```
-CREATE DATABASE test;
+CREATE DATABASE test_example;
 ```
 
 6. Use the new database
 
 ```
-USE test;
+USE test_example;
 ```
 
 7. Create a table
@@ -206,12 +163,18 @@ DROP table visits;
 13. Drop the database
 
 ```sql
-DROP database test;
+DROP database test_example;
 ```
 
 ### Insert csv file into table
 
-1. Create the table
+1. Use database
+
+```
+use default;
+```
+
+2. Create the table
 
 ```
 CREATE TABLE stock (
@@ -219,25 +182,26 @@ CREATE TABLE stock (
      code Int16,
      service_level Float32,
      qty Int8
-) ENGINE = Log
+) ENGINE = MergeTree()
+ORDER by plant;
 ```
 
-2. Load csv data into the table
+3. Load csv data into the table
 
 ```
 cat stock-example.csv | clickhouse-client --query="INSERT INTO stock FORMAT CSV";
 ```
 
-3. Display the data
+4. Display the data
 
 ```
-select * from stock
+select * from stock;
 ```
 
-4. Get number of rows
+5. Get number of rows
 
 ```
-select count(*) from stock
+select count(*) from stock;
 ```
 
 ### Insert parquet file into table
@@ -248,116 +212,51 @@ select count(*) from stock
 cat stock-example.parq | clickhouse-client --query="INSERT INTO stock FORMAT Parquet";
 ```
 
-3. Display the data
+2. Display the data
 
 ```
 select * from stock
 ```
 
-## Load airline data
-
-1. Start clickhouse client
+3. Schedule a merge of parts of a table
 
 ```
-clickhouse-client
+optimize table stock
 ```
 
-2. List tables
+## Metadata queries
+
+1. List databases
+
+```
+show databases;
+```
+
+2. Use the system database;
+
+```
+use system;
+```
+
+3. Get list of tables
 
 ```sql
-show tables;
+select database, name from tables where database = 'default';
 ```
 
-3. Drop tables if needed
+2. Get list of columns
 
 ```sql
-drop table if exists flight;
-drop table if exists flight_view;
+select database, table, name, type from columns where database = 'default';
 ```
 
-4. Exit client
+3. Get table and column names
 
-```
-exit;
-```
-
-5. Use a Python file to load data
-
-```
-python3 ./python/clickhouse-airline-parquet.py
-```
-
-### Get airline data
-
-
-1. Get data in parquet format
-
-```
-clickhouse-client -h 10.0.0.2 -q 'select * from flight limit 1000000' -f Parquet > tmp.parq
-```
-
-### Materialized view
-
-1. Create year
-
-```
-create materialized view flight_view2
-engine = AggregatingMergeTree() ORDER BY (Origin, Dest, Year, Month)
-populate
-as select
-    Origin, Dest, Year, Month,
-    countState() as count_All
-from flight
-group by Origin, Dest, Year, Month
-```
-
-### Metadata queries
-
-```
-select
-    table, count(*) as columns,
-    sum(data_compressed_bytes) as tc,
-    sum(data_uncompressed_bytes) as tu
-from system.columns
-where database = currentDatabase()
-group by table
-```
-
-## Run Jupyter notebooks
-
-1. Setup the Python version
-
-```
-pipenv --python $(which python3)
-```
-
-2. Install libraries
-
-```
-pipenv install
-```
-
-3. Install Jupyter notebook extensions
-
-```
-pipenv run jupyter contrib nbextension install --user
-```
-
-4. Go to the Edit menu nbextensions config option to setup plugins
-
-5. Some useful plugins
-
-* Code prettify
-* Collapsible Headings
-* Comment/Uncomment Hotkey
-* ExecuteTime
-* Select CodeMirror Keymap
-* Table of Contents (2)
-
-6. Run Jupyter notebook
-
-```
-make jupyter-nb
+```sql
+select database, table, name, type
+from columns
+where database = 'default'
+    and table like 'flight%';
 ```
 
 ## Clickhouse client on Ubuntu
@@ -371,7 +270,7 @@ sudo apt-key adv --keyserver keyserver.ubuntu.com --recv E0C56BD4
 2. Add repository to APT repository list
 
 ```
-echo "deb http://repo.yandex.ru/clickhouse/deb/stable/ main/" | sudo tee /etc/apt/sources.list.d/clickhouse.list
+echo "deb https://repo.clickhouse.tech/deb/stable/ main/" | sudo tee /etc/apt/sources.list.d/clickhouse.list
 ```
 
 2. Update packages
