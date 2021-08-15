@@ -5,7 +5,7 @@
 1. Start minio server
 
 ```
-minio server --address :9001 data
+minio server --address :9001 minio-data
 ```
 
 2. Check the server is running on port 9001
