@@ -1,0 +1,5 @@
+---
+- name: install minio server
+  apt:
+    deb: https://dl.min.io/server/minio/release/linux-amd64/minio_20210805220119.0.0_amd64.deb
+
