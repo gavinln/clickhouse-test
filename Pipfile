@@ -12,8 +12,10 @@ yapf = "*"
 mypy = "*"
 pandas = "*"
 sqlalchemy = "*"
-sqlalchemy-clickhouse = "*"
+clickhouse-sqlalchemy = "*"
 awscli = "*"
+fire = "*"
+pytype = "*"
 
 [dev-packages]
 

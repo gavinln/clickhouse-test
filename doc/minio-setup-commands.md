@@ -38,6 +38,12 @@ mc config host ls
 mc ls minio/
 ```
 
+4. Create a bucket
+mc mb minio/first-bucket
+
+5. Create another bucket
+mc mb minio/second-bucket
+
 ## Use minio server with aws cli
 
 https://docs.min.io/docs/aws-cli-with-minio

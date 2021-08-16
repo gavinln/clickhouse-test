@@ -11,7 +11,9 @@ from subprocess import check_output
 
 import pandas as pd
 
-import sqlalchemy as sa
+import sqlalchemy
+
+import fire
 
 
 logging.basicConfig(level=logging.INFO)
@@ -48,8 +50,8 @@ def get_parquet_column_types(parq_files):
 def get_clickhouse_engine():
     host = '10.0.0.2'
     host = '127.0.0.1'
-    engine = sa.create_engine(
-        'clickhouse://default@{}:8123/default'.format(host))
+    engine = sqlalchemy.create_engine(
+        'clickhouse://default:@{}:8123/default'.format(host))
     return engine
 
 
@@ -61,13 +63,29 @@ def execute_sql(sql):
             print(row)
 
 
-def print_databases():
-    engine = get_clickhouse_engine()
+def list_database_tables(engine: sqlalchemy.engine.base.Engine, database: str) -> None:
+    if database is None or len(database) == 0:
+        sys.exit('Invalid database name')
+
     with engine.begin() as connection:
-        sql = 'show databases'
+        sql = 'show tables from {}' .format(database)
+        breakpoint()
         result = connection.execute(sql)
         for row in result:
             print(row)
+
+
+
+def list_system_tables() -> None:
+    ' test db connectivity by listing tables '
+    engine = get_clickhouse_engine()
+    list_database_tables(engine, 'system')
+
+
+def list_default_tables() -> None:
+    ' list tables in default database '
+    engine = get_clickhouse_engine()
+    list_database_tables(engine, 'default')
 
 
 def check_clickhouse_client():
@@ -157,8 +175,17 @@ def query_flight_view():
     execute_sql(sql)
 
 
-def main() -> None:
+def create_flight_tables():
+    ' create flight table and materialized view '
+    create_flight_table()
+
+    create_flight_view()
+
+
+def load_flight_data() -> None:
     '''
+    Load flight data
+
     Loading data without AggregatingMergeTree: 3m18s
     Loading data with AggregatingMergeTree: 3m18s
     '''
@@ -168,17 +195,11 @@ def main() -> None:
     if not parq_file_dir.exists():
         sys.exit(f'Parquet file directory {parq_file_dir} does not exist')
 
-    print('list of databases')
-    print_databases()
 
     parq_files = list(parq_file_dir.glob('*_cleaned.gzip.parq'))
     parq_file_count = len(parq_files)
 
     print(f'There are {parq_file_count} files')
-
-    # create_flight_table()
-
-    # create_flight_view()
 
     check_clickhouse_client()
 
@@ -201,6 +222,15 @@ def main() -> None:
 
     # dtypes_srs = get_parquet_column_types(parq_files)
     # print(dtypes_srs)
+
+
+def main():
+    fire.Fire({
+        'list-system-tables': list_system_tables,
+        'list-default-tables': list_default_tables,
+        'create-flight-tables': create_flight_tables,
+        'load-flight-data': load_flight_data
+    })
 
 
 if __name__ == '__main__':
