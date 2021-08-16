@@ -37,8 +37,10 @@
 [_] AWS cli and minio 2021-08-14
 	[_] Install awscli
 	[_] Setup awscli to access minio
-[_] Change SQLAlchemy driver
+[X] Change SQLAlchemy driver 2021-08-15
 	clickhouse-sqlalchemy - maintained by Altinity
 	sqlalchemy-clickhouse - not maintained - DO NOT USE
+[_] Setup Clickhouse configuration 2021-08-15
+	storage.xml
 
 

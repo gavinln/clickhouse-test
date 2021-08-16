@@ -39,10 +39,16 @@ mc ls minio/
 ```
 
 4. Create a bucket
+
+```
 mc mb minio/first-bucket
+```
 
 5. Create another bucket
+
+```
 mc mb minio/second-bucket
+```
 
 ## Use minio server with aws cli
 
@@ -88,4 +94,25 @@ from s3('http://127.0.0.1:9001/first-bucket/stock-example.parq',
     'plant Int16, code Int16, service_level Float32, qty Int8');
 ```
 
+## Setup Clickhouse storage configuration
 
+1. sudo vim /etc/clickhouse-server/config.d/storage.xml
+
+```xml
+<yandex>
+  <storage_configuration>
+    <disks>
+      <s3>
+        <type>s3</type>
+        <endpoint>http://127.0.0.1:9001/first-bucket/</endpoint>
+        <access_key_id>minioadmin</access_key_id>
+        <secret_access_key>minioadmin</secret_access_key>
+      </s3>
+    </disks>
+  </storage_configuration>
+</yandex>
+```
+
+2. sudo chown clickhouse:clickhouse /etc/clickhouse-server/config.d/storage.xml
+
+3. sudo chmod 400 /etc/clickhouse-server/config.d/storage.xml

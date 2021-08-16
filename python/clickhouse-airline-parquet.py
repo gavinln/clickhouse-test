@@ -210,6 +210,12 @@ def load_flight_data() -> None:
                               shell=True)
         print(output.decode('utf-8').strip())
 
+
+def query_flight_data() -> None:
+    '''
+    Run query on flight data and estimate time taken
+    '''
+
     start_time = time.time()
     query_flight_table()
     elapsed = time.time() - start_time
@@ -229,7 +235,8 @@ def main():
         'list-system-tables': list_system_tables,
         'list-default-tables': list_default_tables,
         'create-flight-tables': create_flight_tables,
-        'load-flight-data': load_flight_data
+        'load-flight-data': load_flight_data,
+        'query-flight-data': query_flight_data
     })
 
 
