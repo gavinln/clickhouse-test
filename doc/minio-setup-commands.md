@@ -104,15 +104,86 @@ from s3('http://127.0.0.1:9001/first-bucket/stock-example.parq',
     <disks>
       <s3>
         <type>s3</type>
-        <endpoint>http://127.0.0.1:9001/first-bucket/</endpoint>
+        <endpoint>http://127.0.0.1:9001/second-bucket/data/</endpoint>
         <access_key_id>minioadmin</access_key_id>
         <secret_access_key>minioadmin</secret_access_key>
       </s3>
     </disks>
+    <policies>
+      <s3>
+        <volumes>
+          <main>
+            <disk>s3</disk>
+          </main>
+        </volumes>
+      </s3>
+    </policies>
   </storage_configuration>
 </yandex>
 ```
 
-2. sudo chown clickhouse:clickhouse /etc/clickhouse-server/config.d/storage.xml
+2. Change ownership for configuration file
+sudo chown clickhouse:clickhouse /etc/clickhouse-server/config.d/storage.xml
 
-3. sudo chmod 400 /etc/clickhouse-server/config.d/storage.xml
+3. Change permission for configuraiton file
+sudo chmod 400 /etc/clickhouse-server/config.d/storage.xml
+
+4. Delete old log file
+sudo rm /var/log/clickhouse-server/clickhouse-server.err.log
+
+5. Restart clickhouse
+sudo service clickhouse-server restart
+
+6. Display any errors
+sudo cat /var/log/clickhouse-server/clickhouse-server.err.log
+
+## Use the S3 storage for tables
+
+1. Create a table
+
+```sql
+CREATE TABLE visits (
+    id UInt64,
+    duration Float64,
+    url String,
+    created DateTime
+) ENGINE = MergeTree() 
+PRIMARY KEY id 
+ORDER BY id
+SETTINGS storage_policy='s3';
+```
+
+2. Insert data into tables
+
+```sql
+INSERT INTO visits VALUES (1, 10.5, 'http://example.com',
+    '2019-01-01 00:01:01');
+INSERT INTO visits VALUES (2, 40.2, 'http://example1.com',
+    '2019-01-03 10:01:01');
+INSERT INTO visits VALUES (3, 13, 'http://example2.com',
+    '2019-01-03 12:01:01');
+INSERT INTO visits VALUES (4, 2, 'http://example3.com',
+    '2019-01-04 02:01:01');
+```
+
+3. Query the table
+
+```sql
+SELECT *
+FROM visits
+```
+
+4. Optimize storage
+
+```sql
+optimize table visits
+```
+
+5. Query the table again
+
+```sql
+select *
+from visits
+```
+
+
