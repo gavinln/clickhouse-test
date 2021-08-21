@@ -17,6 +17,7 @@ awscli = "*"
 fire = "*"
 pytype = "*"
 jupyterlab = "*"
+clickhouse-driver = "*"
 
 [dev-packages]
 

@@ -17,13 +17,18 @@ connect:  ## connect to gavinsvr
 jupyter-lab:  ## start jupyter notebook
 	bash $(SCRIPT_DIR)/scripts/jupyter-lab.sh
 
-.PHONY: clickhouse-start
-clickhouse-start:  ## start Clickhouse
+.PHONY: ch-start
+ch-start:  ## start Clickhouse
 	@docker-compose -f clickhouse/docker-compose.yml up -d
 
-.PHONY: clickhouse-stop
-clickhouse-stop:  ## stop Clickhouse
+.PHONY: ch-stop
+ch-stop:  ## stop Clickhouse
 	docker-compose -f clickhouse/docker-compose.yml stop
 
+.PHONY: tmux
 tmux:  ## start tmux
 	tmuxp load tmux.yaml
+
+.PHONY: ch-client
+ch-client:  ## start clickhouse client
+	clickhouse-client -m --highlight 0 --output_format_pretty_color 0

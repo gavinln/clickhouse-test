@@ -11,9 +11,7 @@ import pandas as pd
 from typing import List
 
 
-def get_null_count(conn_str, table):
-    engine = sa.create_engine('clickhouse://default@10.0.0.2:8123/default')
-
+def get_null_count(engine, table):
     metadata = sa.MetaData(bind=engine)
     metadata.reflect(only=[table])
     tbl = metadata.tables[table]
