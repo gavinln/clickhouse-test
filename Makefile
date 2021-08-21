@@ -15,10 +15,6 @@ connect:  ## connect to gavinsvr
 
 .PHONY: jupyter-lab
 jupyter-lab:  ## start jupyter notebook
-	bash $(SCRIPT_DIR)/scripts/jupyter-nb.sh
-
-.PHONY: jupyter-nb
-jupyter-nb:  ## start jupyter notebook
 	bash $(SCRIPT_DIR)/scripts/jupyter-lab.sh
 
 .PHONY: clickhouse-start

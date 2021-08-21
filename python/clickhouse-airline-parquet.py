@@ -69,7 +69,6 @@ def list_database_tables(engine: sqlalchemy.engine.base.Engine, database: str) -
 
     with engine.begin() as connection:
         sql = 'show tables from {}' .format(database)
-        breakpoint()
         result = connection.execute(sql)
         for row in result:
             print(row)
