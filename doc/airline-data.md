@@ -27,10 +27,28 @@ drop table if exists flight_view;
 exit;
 ```
 
-5. Use a Python file to load data
+5. List tables in the defaul database
 
 ```
-python3 ./python/clickhouse-airline-parquet.py
+python clickhouse-airline-parquet.py list-default-tables
+```
+
+6. Create flight tables
+
+```
+python clickhouse-airline-parquet.py create-flight-tables
+```
+
+6. Load flight data
+
+```
+python clickhouse-airline-parquet.py load-flight-data
+```
+
+7. Query data
+
+```
+python clickhouse-airline-parquet.py query-flight-data
 ```
 
 ### Get airline data
