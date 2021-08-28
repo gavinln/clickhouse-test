@@ -18,6 +18,7 @@ fire = "*"
 pytype = "*"
 jupyterlab = "*"
 clickhouse-driver = "*"
+duckdb = "*"
 
 [dev-packages]
 

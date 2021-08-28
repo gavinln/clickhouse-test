@@ -349,7 +349,29 @@ aws ec2 describe-spot-price-history --instance-types t3.2xlarge
 ```
 
 2. Copy file from S3 - 11 seconds
+
+```
 aws s3 cp s3://airline-parq/2008_cleaned.gzip.parq .
+```
+
+## Example Parquet commands
+
+### Duckdb parquet
+
+```python
+mport duckdb
+con = duckdb.connect(database=":memory:")
+sql = "select count(*) from parquet_metadata('scripts/test100.parquet')"
+sql = "select count(*) from parquet_schema('scripts/test100.parquet')"
+df = con.execute(sql).fetchdf()
+```
+
+### Clickhouse parquet
+
+```bash
+# select * from datasets.ontime limit 1;
+clickhouse-client --query="select * from datasets.ontime limit 100 FORMAT Parquet" > test100.parquet
+```
 
 ## Links
 
@@ -438,3 +460,7 @@ aws s3 cp s3://airline-parq/2008_cleaned.gzip.parq .
 [Clickhouse arrays - Part 2][1230]
 
 [1230] https://altinity.com/blog/harnessing-the-power-of-clickhouse-arrays-part-2
+
+Prepared partitions of [airline ontime data][1240]
+
+[1240]: http://devdoc.net/database/ClickhouseDocs_19.4.1.3-docs/getting_started/example_datasets/ontime/
