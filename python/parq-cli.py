@@ -25,6 +25,40 @@ SCRIPT_DIR = pathlib.Path(__file__).parent.resolve()
 app = typer.Typer(help='command line tools for parquet files')
 
 
+def to_string_ljustify(df):
+    ''' pandas dataframe to a string with left justified text
+    '''
+    col_formatters = []
+    for col_name in df.columns:
+        col = df[col_name]
+        if col.dtype == 'object':
+            col_len_max = col.apply(len).max()
+            col_format = '{{:<{}s}}'.format(col_len_max)
+            col_formatters.append(col_format.format)
+        else:
+            col_formatters.append(None)
+
+    # left justify strings
+    str_df = df.to_string(index=False, formatters=col_formatters)
+    # remove trailing whitespaces
+    return '\n'.join(line.rstrip() for line in str_df.split('\n'))
+
+    # default printing is right justified
+    # return df.to_string(index=False)
+
+
+def print_tty_redir(df):
+    ''' print data frame to a tty (partial) or redirected output (full)
+    '''
+    if df is not None:
+        if sys.stdout.isatty():
+            print(df.to_string(index=False))
+        else:
+            with pd.option_context("display.max_rows", None,
+                                   "display.max_columns", None):
+                print(to_string_ljustify(df))
+
+
 def check_file_exists(file_name: str):
     data_file = pathlib.Path(file_name)
     if not data_file.exists():
@@ -79,7 +113,7 @@ def column_info(parquet_file: str):
         column_schema_list.append(column_schema_to_dict(schema.column(idx)))
 
     df = pd.DataFrame.from_records(column_schema_list)
-    print(df)
+    print_tty_redir(df)
 
 
 def check_column_exists(parquet_file: str, column_name: str):
