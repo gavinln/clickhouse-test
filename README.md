@@ -385,8 +385,8 @@ clickhouse-client --query "select count(*) from datasets.ontime"
 SQL="select * from datasets.ontime limit 100 FORMAT Parquet"
 clickhouse-client --query="$SQL" > ontime100.pq
 
-SQL="select Year, FlightDate, Carrier, FlightNum from datasets.ontime order by Year limit 10000000 FORMAT Parquet"
-clickhouse-client --query="$SQL" > scripts/ontime-10m.pq
+SQL="select Year, FlightDate, Carrier, FlightNum from datasets.ontime order by Year limit 50000000 FORMAT Parquet"
+clickhouse-client --query="$SQL" > scripts/ontime-50m.pq
 ```
 
 3. Clickhouse local query
