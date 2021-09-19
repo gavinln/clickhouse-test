@@ -416,6 +416,10 @@ Year UInt16, FlightDate Date, Carrier FixedString(2), FlightNum String
 
 [920]: https://github.com/FlorianWilhelm/polars_vs_pandas/blob/master/pl_vs_pd.ipynb
 
+* [Introduction][930] to polars
+
+[930]: https://medium.com/analytics-vidhya/introduction-to-polars-ee9e638dc163
+
 ## Links
 
 * Setup [Clickhouse on Debian][1000]
