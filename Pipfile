@@ -21,6 +21,7 @@ clickhouse-driver = "*"
 duckdb = "*"
 typer = "*"
 seaborn = "*"
+pyarrow = "*"
 
 [dev-packages]
 
