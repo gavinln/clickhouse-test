@@ -350,7 +350,56 @@ aws ec2 describe-spot-price-history --instance-types t3.2xlarge
 ```
 
 2. Copy file from S3 - 11 seconds
+
+```
 aws s3 cp s3://airline-parq/2008_cleaned.gzip.parq .
+```
+
+## Example Parquet commands
+
+### Duckdb parquet
+
+```python
+mport duckdb
+con = duckdb.connect(database=":memory:")
+sql = "select count(*) from parquet_metadata('scripts/ontime100.pq')"
+sql = "select count(*) from parquet_schema('scripts/ontime100.pq')"
+df = con.execute(sql).fetchdf()
+```
+
+### Clickhouse parquet
+
+1. Download prepared Clickhouse database partitions for airlines ontime data
+
+```bash
+curl -O https://datasets.clickhouse.tech/ontime/partitions/ontime.tar
+tar xvf ontime.tar -C /var/lib/clickhouse # path to ClickHouse data directory
+# check permissions of unpacked data, fix if required
+sudo service clickhouse-server restart
+clickhouse-client --query "select count(*) from datasets.ontime"
+```
+
+2. Extract data to parquet format
+
+```bash
+# select * from datasets.ontime limit 1;
+SQL="select * from datasets.ontime limit 100 FORMAT Parquet"
+clickhouse-client --query="$SQL" > ontime100.pq
+
+SQL="select Year, FlightDate, Carrier, FlightNum from datasets.ontime order by Year limit 50000000 FORMAT Parquet"
+clickhouse-client --query="$SQL" > scripts/ontime-50m.pq
+```
+
+3. Clickhouse local query
+
+```bash
+SQL="select Year, count(*) ct from file('scripts/ontime-10m.pq', Parquet, 'Year UInt16, FlightDate Date, Carrier String, FlightNum String') group by Year"
+clickhouse-local --query "$SQL"
+```
+
+```
+Year UInt16, FlightDate Date, Carrier FixedString(2), FlightNum String
+```
 
 
 ## Polars
@@ -454,3 +503,7 @@ aws s3 cp s3://airline-parq/2008_cleaned.gzip.parq .
 [Clickhouse arrays - Part 2][1230]
 
 [1230] https://altinity.com/blog/harnessing-the-power-of-clickhouse-arrays-part-2
+
+Prepared partitions of [airline ontime data][1240]
+
+[1240]: http://devdoc.net/database/ClickhouseDocs_19.4.1.3-docs/getting_started/example_datasets/ontime/

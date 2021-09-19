@@ -19,6 +19,9 @@ pytype = "*"
 jupyterlab = "*"
 clickhouse-driver = "*"
 polars = "*"
+duckdb = "*"
+typer = "*"
+seaborn = "*"
 
 [dev-packages]
 
