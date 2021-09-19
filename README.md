@@ -326,6 +326,7 @@ create table flight as select * from parquet_scan('test.parquet');
 .quit
 ```
 
+
 ## AWS command line setup
 
 1. Setup AWS configuration
@@ -432,6 +433,24 @@ python python/parq-cli.py clickhouse scripts/ontime-10m.pq  # 1s
 python python/parq-cli.py duck scripts/ontime-50m.pq  # 12.5s
 python python/parq-cli.py clickhouse scripts/ontime-50m.pq  # 4.4s
 ```
+
+## Polars
+
+* [Polars github][900]
+
+[900]: https://github.com/pola-rs/polars
+
+* [Polars vs Rust][910]
+
+[910]: https://able.bio/haixuanTao/data-manipulation-polars-vs-rust--3def44c8
+
+* [Polars vs Pandas][920] dataframe
+
+[920]: https://github.com/FlorianWilhelm/polars_vs_pandas/blob/master/pl_vs_pd.ipynb
+
+* [Introduction][930] to polars
+
+[930]: https://medium.com/analytics-vidhya/introduction-to-polars-ee9e638dc163
 
 ## Links
 
