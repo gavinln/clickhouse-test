@@ -18,6 +18,7 @@ fire = "*"
 pytype = "*"
 jupyterlab = "*"
 clickhouse-driver = "*"
+polars = "*"
 
 [dev-packages]
 

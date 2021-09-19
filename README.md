@@ -326,6 +326,7 @@ create table flight as select * from parquet_scan('test.parquet');
 .quit
 ```
 
+
 ## AWS command line setup
 
 1. Setup AWS configuration
@@ -350,6 +351,21 @@ aws ec2 describe-spot-price-history --instance-types t3.2xlarge
 
 2. Copy file from S3 - 11 seconds
 aws s3 cp s3://airline-parq/2008_cleaned.gzip.parq .
+
+
+## Polars
+
+* [Polars github][900]
+
+[900]: https://github.com/pola-rs/polars
+
+* [Polars vs Rust][910]
+
+[910]: https://able.bio/haixuanTao/data-manipulation-polars-vs-rust--3def44c8
+
+* [Polars vs Pandas][920] dataframe
+
+[920]: https://github.com/FlorianWilhelm/polars_vs_pandas/blob/master/pl_vs_pd.ipynb
 
 ## Links
 
