@@ -18,7 +18,6 @@ import typer
 import duckdb
 import pandas as pd
 
-
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger(__name__)
 SCRIPT_DIR = pathlib.Path(__file__).parent.resolve()
@@ -94,9 +93,11 @@ def column_names(parquet_file: str):
 
 
 def column_schema_to_dict(column_schema) -> dict:
-    attrs = ['name', 'path', 'max_definition_level', 'max_repetition_level',
-             'physical_type']
-    return  {attr:getattr(column_schema, attr) for attr in attrs }
+    attrs = [
+        'name', 'path', 'max_definition_level', 'max_repetition_level',
+        'physical_type'
+    ]
+    return {attr: getattr(column_schema, attr) for attr in attrs}
 
 
 @app.command()
@@ -129,8 +130,9 @@ def check_column_exists(parquet_file: str, column_name: str):
     return parquet_file.metadata
 
 
-def get_min_row_groups(
-        all_row_groups: int, head_row_groups: int, all: bool=False):
+def get_min_row_groups(all_row_groups: int,
+                       head_row_groups: int,
+                       all: bool = False):
     ' returns smaller number of row groups unless all is True '
     if all:
         return all_row_groups
@@ -138,15 +140,15 @@ def get_min_row_groups(
 
 
 @app.command()
-def column_stats_set(parquet_file: str, all: bool=False):
+def column_stats_set(parquet_file: str, all: bool = False):
     ' get number of row groups with column stats '
     check_file_exists(parquet_file)
     parquet_file = pq.ParquetFile(parquet_file)
     metadata = parquet_file.metadata
 
     head_row_groups = 5
-    total_row_groups = get_min_row_groups(
-        metadata.num_row_groups, head_row_groups, all)
+    total_row_groups = get_min_row_groups(metadata.num_row_groups,
+                                          head_row_groups, all)
 
     column_stats = [0] * metadata.num_columns
     for row_idx in range(total_row_groups):
@@ -159,14 +161,14 @@ def column_stats_set(parquet_file: str, all: bool=False):
 
 
 @app.command()
-def column_stats(parquet_file: str, column_name: str, all: bool=False):
+def column_stats(parquet_file: str, column_name: str, all: bool = False):
     ' get column stats for a single column '
     check_file_exists(parquet_file)
     metadata = check_column_exists(parquet_file, column_name)
 
     head_row_groups = 5
-    total_row_groups = get_min_row_groups(
-        metadata.num_row_groups, head_row_groups, all)
+    total_row_groups = get_min_row_groups(metadata.num_row_groups,
+                                          head_row_groups, all)
 
     col_idx = metadata.schema.names.index(column_name)
 
@@ -186,6 +188,7 @@ describe select * from parquet_scan('{})
 select * from parquet_metadata('{}')
 select * from parquet_schema('{}')
 '''
+
 
 @app.command()
 def duck(parquet_file: str):
@@ -207,23 +210,18 @@ def duck(parquet_file: str):
     print(df)
 
 
-ParquetClickhouseType = NamedTuple(
-    "ParquetClickhouseType", [('parquet', str), ('clickhouse', str)])
+ParquetClickhouseType = NamedTuple("ParquetClickhouseType",
+                                   [('parquet', str), ('clickhouse', str)])
 
-pc_types = [pc_type.split() for pc_type in (
-    'UINT8 UInt8',
-    'INT8 Int8',
-    'UINT16 UInt16',
-    'INT16 Int16',
-    'UINT32 UInt32',
-    'INT32 Int32',
-    'UINT64 UInt64',
-    'INT64 Int64',
-    'FLOAT Float32',
-    'DOUBLE Float64',
-    'BYTE_ARRAY String')]
-pc_dict = { p_type: c_type for p_type, c_type in pc_types }
-cp_dict = { c_type: p_type for p_type, c_type in pc_types }
+pc_types = [
+    pc_type.split()
+    for pc_type in ('UINT8 UInt8', 'INT8 Int8', 'UINT16 UInt16', 'INT16 Int16',
+                    'UINT32 UInt32', 'INT32 Int32', 'UINT64 UInt64',
+                    'INT64 Int64', 'FLOAT Float32', 'DOUBLE Float64',
+                    'BYTE_ARRAY String')
+]
+pc_dict = {p_type: c_type for p_type, c_type in pc_types}
+cp_dict = {c_type: p_type for p_type, c_type in pc_types}
 
 
 def check_executable(executable_name):
@@ -244,8 +242,8 @@ def clickhouse_types(parquet_file):
         col_name = schema.column(idx).name
         col_type = schema.column(idx).physical_type
         pq_types.append([col_name, pc_dict[col_type]])
-    return ', '.join(
-        f'{col_name} {col_type}' for col_name, col_type in pq_types)
+    return ', '.join(f'{col_name} {col_type}'
+                     for col_name, col_type in pq_types)
 
 
 @app.command()
@@ -270,8 +268,8 @@ def clickhouse(parquet_file: str):
     clickhouse_query = sql.replace("\n", " ")
 
     start = time.time()
-    output = check_output(
-        [executable_name, '--query', clickhouse_query], shell=False)
+    output = check_output([executable_name, '--query', clickhouse_query],
+                          shell=False)
     elapsed = time.time() - start
     print(f'Elapsed {elapsed:.4f}')
     print(output.decode('utf-8').strip())
