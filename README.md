@@ -44,6 +44,12 @@ vagrant plugin list
 vagrant plugin install vagrant-vbguest
 ```
 
+4. Update vbguest
+
+```
+vagrant plugin update vagrant-vbguest
+```
+
 [100]: https://github.com/dotless-de/vagrant-vbguest
 
 4. Start the virtual machine
@@ -373,7 +379,7 @@ df = con.execute(sql).fetchdf()
 
 ```bash
 curl -O https://datasets.clickhouse.tech/ontime/partitions/ontime.tar
-tar xvf ontime.tar -C /var/lib/clickhouse # path to ClickHouse data directory
+sudo tar xvf ontime.tar -C /var/lib/clickhouse # path to ClickHouse data directory
 # check permissions of unpacked data, fix if required
 sudo service clickhouse-server restart
 clickhouse-client --query "select count(*) from datasets.ontime"
