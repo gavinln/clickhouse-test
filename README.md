@@ -368,8 +368,8 @@ aws s3 cp s3://airline-parq/2008_cleaned.gzip.parq .
 ```python
 mport duckdb
 con = duckdb.connect(database=":memory:")
-sql = "select count(*) from parquet_metadata('scripts/ontime100.pq')"
-sql = "select count(*) from parquet_schema('scripts/ontime100.pq')"
+sql = "select count(*) from parquet_metadata('scripts/ontime-100.pq')"
+sql = "select count(*) from parquet_schema('scripts/ontime-100.pq')"
 df = con.execute(sql).fetchdf()
 ```
 
@@ -390,7 +390,7 @@ clickhouse-client --query "select count(*) from datasets.ontime"
 ```bash
 # select * from datasets.ontime limit 1;
 SQL="select * from datasets.ontime limit 100 FORMAT Parquet"
-clickhouse-client --query="$SQL" > ontime100.pq
+clickhouse-client --query="$SQL" > ontime-100.pq
 
 SQL="select Year, FlightDate, Carrier, FlightNum from datasets.ontime order by Year limit 50000000 FORMAT Parquet"
 clickhouse-client --query="$SQL" > scripts/ontime-50m.pq
@@ -403,10 +403,38 @@ SQL="select Year, count(*) ct from file('scripts/ontime-10m.pq', Parquet, 'Year 
 clickhouse-local --query "$SQL"
 ```
 
+## Performance duckdb vs clickhouse
+
+Clickhouse is installed in the Vagrant virtual machine directly without using
+Docker containers.
+
+1. Login to the VM
+
 ```
-Year UInt16, FlightDate Date, Carrier FixedString(2), FlightNum String
+vagrant ssh
 ```
 
+2. Setup the Python virtual environment
+
+```
+cd /vagrant
+pipenv install --skip-lock
+pipenv shell
+```
+
+3. Measure the performance using a 10 million row dataset
+
+```
+python python/parq-cli.py duck scripts/ontime-10m.pq  # 2.6s
+python python/parq-cli.py clickhouse scripts/ontime-10m.pq  # 1s
+```
+
+4. Measure the performance using a 50 million row dataset
+
+```
+python python/parq-cli.py duck scripts/ontime-50m.pq  # 12.5s
+python python/parq-cli.py clickhouse scripts/ontime-50m.pq  # 4.4s
+```
 
 ## Polars
 
