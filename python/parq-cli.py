@@ -233,7 +233,7 @@ def check_executable(executable_name):
     print('Found {}'.format(output.decode('unicode_escape')))
 
 
-def clickhouse_types(parquet_file):
+def get_clickhouse_types(parquet_file):
     ' get parquet columns as clickhouse types string '
     pq_file = pq.ParquetFile(parquet_file)
     schema = pq_file.metadata.schema
@@ -253,7 +253,7 @@ def clickhouse(parquet_file: str):
 
     executable_name = 'clickhouse-local'
     check_executable(executable_name)
-    ch_types_str = clickhouse_types(parquet_file)
+    ch_types_str = get_clickhouse_types(parquet_file)
     print(ch_types_str)
 
     sql = """
