@@ -81,7 +81,7 @@ sudo service clickhouse-server restart
 1. Start the clickhouse client
 
 ```
-clickhouse-client -m 
+clickhouse-client -m
 ```
 
 2. List databases
@@ -122,8 +122,8 @@ CREATE TABLE visits (
     duration Float64,
     url String,
     created DateTime
-) ENGINE = MergeTree() 
-PRIMARY KEY id 
+) ENGINE = MergeTree()
+PRIMARY KEY id
 ORDER BY id;
 ```
 
@@ -366,7 +366,7 @@ aws s3 cp s3://airline-parq/2008_cleaned.gzip.parq .
 ### Duckdb parquet
 
 ```python
-mport duckdb
+import duckdb
 con = duckdb.connect(database=":memory:")
 sql = "select count(*) from parquet_metadata('scripts/ontime-100.pq')"
 sql = "select count(*) from parquet_schema('scripts/ontime-100.pq')"
@@ -545,3 +545,10 @@ python python/parq-cli.py clickhouse scripts/ontime-50m.pq  # 4.4s
 Prepared partitions of [airline ontime data][1240]
 
 [1240]: http://devdoc.net/database/ClickhouseDocs_19.4.1.3-docs/getting_started/example_datasets/ontime/
+
+
+### Apache druid
+
+Druid for funnel analysis [Video][1300]
+
+[1300]: https://www.youtube.com/watch?v=dOBb0IOdsnU
