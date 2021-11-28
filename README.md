@@ -70,7 +70,14 @@ vagrant ssh
 cd /vagrant/clickhouse
 ```
 
-7. Start the Clickhouse database
+7. Upgrade clickhouse
+
+```
+sudo apt update
+sudo apt install clickhouse-client clickhouse-server
+```
+
+8. Start the Clickhouse database
 
 ```
 sudo service clickhouse-server restart
@@ -78,7 +85,7 @@ sudo service clickhouse-server restart
 
 ### Example queries
 
-1. Start the clickhouse client
+1. Start the clickhouse client. Displays client and server version.
 
 ```
 clickhouse-client -m
