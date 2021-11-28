@@ -24,6 +24,7 @@ typer = "*"
 seaborn = "*"
 pyarrow = "*"
 black = "*"
+datafusion = "*"
 
 [dev-packages]
 
