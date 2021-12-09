@@ -23,6 +23,7 @@ duckdb = "*"
 typer = "*"
 seaborn = "*"
 pyarrow = "*"
+awswrangler = "*"
 black = "*"
 datafusion = "*"
 
