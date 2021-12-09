@@ -132,8 +132,7 @@ def check_column_exists(parquet_file: str, column_name: str):
     parquet_file = pq.ParquetFile(parquet_file)
     schema = parquet_file.metadata.schema
     if column_name not in schema.names:
-        typer.echo(f"Invalid column {column_name}")
-        raise typer.Exit()
+        sys.exit(f"Invalid column {column_name}")
     return parquet_file.metadata
 
 
@@ -324,10 +323,10 @@ def arrow_parquet_example(parquet_file: str):
     check_file_exists(parquet_file)
     local = fs.LocalFileSystem()
 
-    print('Counts by Year:')
+    print("Counts by Year:")
     start = time.time()
     tbl = pq.read_table(parquet_file, filesystem=local)
-    result = pc.value_counts(tbl.column('Year'))
+    result = pc.value_counts(tbl.column("Year"))
     elapsed = time.time() - start
     print(f"Elapsed {elapsed:.4f}")
     print(result.to_pandas())
@@ -337,7 +336,7 @@ def datafusion_parquet(parquet_file: str):
     "use datafusion to process parquet files"
 
     check_file_exists(parquet_file)
-    print('Parquet file must have extension .parquet')
+    print("Parquet file must have extension .parquet")
     ctx = datafusion.ExecutionContext()
     ctx.register_parquet("t", parquet_file)
     sql = """
@@ -352,15 +351,19 @@ def datafusion_parquet(parquet_file: str):
     print(f"Elapsed {elapsed:.4f}")
     print(result.to_pandas())
 
-    df = ctx.table('t')
+    df = ctx.table("t")
     start = time.time()
-    batches = df.aggregate([col('Year')], [
-        f.count(col('Year')).alias('Year_ct'),
-        f.approx_distinct(col('Carrier')).alias('approx_dist')])
+    batches = df.aggregate(
+        [col("Year")],
+        [
+            f.count(col("Year")).alias("Year_ct"),
+            f.approx_distinct(col("Carrier")).alias("approx_dist"),
+        ],
+    )
     result = pa.Table.from_batches(batches.collect())
     elapsed = time.time() - start
     print(f"Elapsed {elapsed:.4f}")
-    print('result:', result.to_pandas())
+    print("result:", result.to_pandas())
 
 
 def arrow_compute_example():
@@ -368,39 +371,44 @@ def arrow_compute_example():
 
     # https://arrow.apache.org/cookbook/py/data.html
 
-    tbl = pa.table({
-        'name': list('aabccc'),
-        'value': list(range(6))
-        })
-    print('table data')
+    tbl = pa.table({"name": list("aabccc"), "value": list(range(6))})
+    print("table data")
     print(tbl.to_pandas())
 
-    print('count name column:', pc.count(tbl.column('name')).as_py())
+    print("count name column:", pc.count(tbl.column("name")).as_py())
 
-    print('count name distinct column:',
-          pc.count_distinct(tbl.column('name')).as_py())
+    print(
+        "count name distinct column:",
+        pc.count_distinct(tbl.column("name")).as_py(),
+    )
 
-    print('min name column:', pc.min(tbl.column('name')).as_py())
+    print("min name column:", pc.min(tbl.column("name")).as_py())
 
-    print('min value column:', pc.min(tbl.column('value')).as_py())
+    print("min value column:", pc.min(tbl.column("value")).as_py())
 
-    print('max value column:', pc.max(tbl.column('value')).as_py())
+    print("max value column:", pc.max(tbl.column("value")).as_py())
 
-    print('min, max value column:', pc.min_max(tbl.column('value')).as_py())
+    print("min, max value column:", pc.min_max(tbl.column("value")).as_py())
 
-    print('mean value column:', pc.mean(tbl.column('value')).as_py())
+    print("mean value column:", pc.mean(tbl.column("value")).as_py())
 
-    print('name value counts:',
-          pc.value_counts(tbl.column('name')).to_pylist())
+    print(
+        "name value counts:", pc.value_counts(tbl.column("name")).to_pylist()
+    )
 
-    print('multiply value by 2:',
-          pc.multiply(tbl.column('value'), 2).to_pylist())
+    print(
+        "multiply value by 2:", pc.multiply(tbl.column("value"), 2).to_pylist()
+    )
 
-    print('multiply value by itself:',
-          pc.multiply(tbl.column('value'), tbl.column('value')).to_pylist())
+    print(
+        "multiply value by itself:",
+        pc.multiply(tbl.column("value"), tbl.column("value")).to_pylist(),
+    )
 
-    print('rows where value is greater than 2',
-          pc.filter(tbl, pc.greater(tbl.column('value'), 2)).to_pandas())
+    print(
+        "rows where value is greater than 2",
+        pc.filter(tbl, pc.greater(tbl.column("value"), 2)).to_pandas(),
+    )
 
 
 def datafusion_compute_example():
@@ -408,16 +416,13 @@ def datafusion_compute_example():
 
     # https://arrow.apache.org/cookbook/py/data.html
 
-    tbl = pa.table({
-        'name': list('aabccc'),
-        'value': list(range(6))
-        })
+    tbl = pa.table({"name": list("aabccc"), "value": list(range(6))})
 
     ctx = datafusion.ExecutionContext()
 
     df = ctx.create_dataframe([tbl.to_batches()])
 
-    print('table data')
+    print("table data")
     print(tbl.to_pandas())
 
     # ctx.register_record_batches('t', [tbl.to_batches()])
@@ -427,50 +432,57 @@ def datafusion_compute_example():
 
     df = ctx.create_dataframe([tbl.to_batches()])
 
-    batches = df.aggregate([], [f.count(col('name')).alias('name')]).collect()
-    print('count name column:', pa.Table.from_batches(batches).to_pydict())
+    batches = df.aggregate([], [f.count(col("name")).alias("name")]).collect()
+    print("count name column:", pa.Table.from_batches(batches).to_pydict())
 
-    batches = df.aggregate([], [
-        f.approx_distinct(col('name')).alias('name')]).collect()
-    print('count name distinct column:',
-          pa.Table.from_batches(batches).to_pydict())
+    batches = df.aggregate(
+        [], [f.approx_distinct(col("name")).alias("name")]
+    ).collect()
+    print(
+        "count name distinct column:",
+        pa.Table.from_batches(batches).to_pydict(),
+    )
 
-    batches = df.aggregate([], [
-        f.min(col('name')).alias('name')]).collect()
-    print('min name column:', pa.Table.from_batches(batches).to_pydict())
+    batches = df.aggregate([], [f.min(col("name")).alias("name")]).collect()
+    print("min name column:", pa.Table.from_batches(batches).to_pydict())
 
-    batches = df.aggregate([], [
-        f.min(col('value')).alias('value')]).collect()
-    print('min value column:', pa.Table.from_batches(batches).to_pydict())
+    batches = df.aggregate([], [f.min(col("value")).alias("value")]).collect()
+    print("min value column:", pa.Table.from_batches(batches).to_pydict())
 
-    batches = df.aggregate([], [
-        f.max(col('value')).alias('value')]).collect()
-    print('max value column:', pa.Table.from_batches(batches).to_pydict())
+    batches = df.aggregate([], [f.max(col("value")).alias("value")]).collect()
+    print("max value column:", pa.Table.from_batches(batches).to_pydict())
 
-    batches = df.aggregate([], [
-        f.avg(col('value')).alias('value')]).collect()
-    print('mean value column:', pa.Table.from_batches(batches).to_pydict())
+    batches = df.aggregate([], [f.avg(col("value")).alias("value")]).collect()
+    print("mean value column:", pa.Table.from_batches(batches).to_pydict())
 
-    batches = df.aggregate([col('name')], [
-        f.count(col('name')).alias('name_count')]).collect()
-    print('name value column:', pa.Table.from_batches(batches).to_pydict())
+    batches = df.aggregate(
+        [col("name")], [f.count(col("name")).alias("name_count")]
+    ).collect()
+    print("name value column:", pa.Table.from_batches(batches).to_pydict())
 
-    print('multiply value by 2:',
-          pc.multiply(tbl.column('value'), 2).to_pylist())
+    print(
+        "multiply value by 2:", pc.multiply(tbl.column("value"), 2).to_pylist()
+    )
 
     batches = df.select(
-        (col('value') * literal(2)).alias('value_mul_2')).collect()
-    print('multiply value by 2:',
-        pa.Table.from_batches(batches).to_pydict())
+        (col("value") * literal(2)).alias("value_mul_2")
+    ).collect()
+    print("multiply value by 2:", pa.Table.from_batches(batches).to_pydict())
 
-    batches = df.select( (col('value') * col('value')).alias('value_sqr')).collect()
-    print('multiply value by itself:',
-        pa.Table.from_batches(batches).to_pydict())
+    batches = df.select(
+        (col("value") * col("value")).alias("value_sqr")
+    ).collect()
+    print(
+        "multiply value by itself:", pa.Table.from_batches(batches).to_pydict()
+    )
 
     batches = df.filter(
-        (col('value') > literal(2)).alias('value_gt_2')).collect()
-    print('rows where value is greater than 2:',
-        pa.Table.from_batches(batches).to_pydict())
+        (col("value") > literal(2)).alias("value_gt_2")
+    ).collect()
+    print(
+        "rows where value is greater than 2:",
+        pa.Table.from_batches(batches).to_pydict(),
+    )
 
 
 def main():
@@ -482,15 +494,11 @@ def main():
             "column_info": column_info,
             "column_stats_set": column_stats_set,
             "column_stats": column_stats,
-
             "duck": duck,
-
             "ch_local": ch_local,
             "ch_server_184m": ch_server_184m,
-
             "arrow_parquet_example": arrow_parquet_example,
             "arrow_compute_example": arrow_compute_example,
-
             "datafusion_parquet": datafusion_parquet,
             "datafusion_compute_example": datafusion_compute_example,
         }
