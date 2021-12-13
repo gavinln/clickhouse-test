@@ -416,7 +416,7 @@ clickhouse-local --query "$SQL"
 ## Performance duckdb vs clickhouse
 
 Clickhouse is installed in the Vagrant virtual machine directly without using
-Docker containers.
+Docker containers. Copy the parquet files to ~ for the best performance
 
 1. Login to the VM
 
@@ -435,15 +435,22 @@ pipenv shell
 3. Measure the performance using a 10 million row dataset
 
 ```
-python python/parq-cli.py duck scripts/ontime-10m.pq  # 2.6s
-python python/parq-cli.py clickhouse scripts/ontime-10m.pq  # 1s
+python python/parq-cli.py duck scripts/ontime-10m.parquet  # 1.0s
+python python/parq-cli.py ch-local scripts/ontime-10m.parquet  # 0.8s
 ```
 
 4. Measure the performance using a 50 million row dataset
 
 ```
-python python/parq-cli.py duck scripts/ontime-50m.pq  # 12.5s
-python python/parq-cli.py clickhouse scripts/ontime-50m.pq  # 4.4s
+python python/parq-cli.py duck scripts/ontime-50m.parquet  # 4.9s
+python python/parq-cli.py ch_local scripts/ontime-50m.parquet  # 4.3s
+```
+
+5. Measure the performance using a 100 million row dataset
+
+```
+python python/parq-cli.py duck scripts/ontime-100m.parquet  # 10.0s
+python python/parq-cli.py ch_local scripts/ontime-100m.parquet  # 6.9
 ```
 
 ## Polars
