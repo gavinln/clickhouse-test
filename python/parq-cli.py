@@ -363,7 +363,7 @@ def datafusion_parquet(parquet_file: str):
     result = pa.Table.from_batches(batches.collect())
     elapsed = time.time() - start
     print(f"Elapsed {elapsed:.4f}")
-    print("result:", result.to_pandas())
+    print(result.to_pandas())
 
 
 def arrow_compute_example():
