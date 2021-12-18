@@ -455,23 +455,21 @@ class Commands:
         print(f"Elapsed {elapsed:.4f}")
         print(result.to_pandas())
 
+        print("Counts by Year (group_by not supported)")
+        return
+        start = time.time()
+        tbl = pq.read_table(parquet_file, filesystem=local)
+        result = tbl.group_by("Year").aggregate([("values", "hash_count")])
+        elapsed = time.time() - start
+        print(f"Elapsed {elapsed:.4f}")
+        print(result.to_pandas())
+
     def datafusion_parquet(self, parquet_file: str):
         "use datafusion to process parquet files"
 
         check_file_exists(parquet_file)
         ctx = datafusion.ExecutionContext()
         ctx.register_parquet("t", parquet_file)
-        sql = """
-            select Year, count(*) ct, count(distinct Carrier) carrier_uniq_ct
-            from t
-            group by Year
-        """
-        start = time.time()
-        sql_result = ctx.sql(sql).collect()
-        result = pa.Table.from_batches(sql_result)
-        elapsed = time.time() - start
-        print(f"Elapsed {elapsed:.4f}")
-        print(result.to_pandas())
 
         df = ctx.table("t")
         start = time.time()
@@ -486,7 +484,20 @@ class Commands:
         elapsed = time.time() - start
         print(f"Elapsed {elapsed:.4f}")
         print("result:", result.to_pandas())
+        return
 
+        sql = """
+        -- select Year, count(*) ct, count(distinct Carrier) carrier_uniq_ct
+            select Year, count(*) ct
+            from t
+            group by Year
+        """
+        start = time.time()
+        sql_result = ctx.sql(sql).collect()
+        result = pa.Table.from_batches(sql_result)
+        elapsed = time.time() - start
+        print(f"Elapsed {elapsed:.4f}")
+        print(result.to_pandas())
 
 
 def main():
@@ -494,7 +505,6 @@ def main():
     return
     fire.Fire(
         {
-            "ch_local": ch_local,
             "ch_server_184m": ch_server_184m,
             "arrow_compute_example": arrow_compute_example,
             "datafusion_compute_example": datafusion_compute_example,
