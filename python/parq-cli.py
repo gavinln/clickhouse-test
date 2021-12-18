@@ -73,30 +73,6 @@ def check_file_exists(file_name: str):
         sys.exit(f"File {data_file} does not exist")
 
 
-def metadata(parquet_file: str):
-    "get metadata"
-    check_file_exists(parquet_file)
-    parquet_file = pq.ParquetFile(parquet_file)
-    metadata = parquet_file.metadata
-    print(metadata)
-
-
-def schema(parquet_file: str):
-    "get column schema"
-    check_file_exists(parquet_file)
-    parquet_file = pq.ParquetFile(parquet_file)
-    metadata = parquet_file.metadata
-    print(metadata.schema)
-
-
-def column_names(parquet_file: str):
-    "get column names"
-    check_file_exists(parquet_file)
-    parquet_file = pq.ParquetFile(parquet_file)
-    metadata = parquet_file.metadata
-    print("\n".join(metadata.schema.names))
-
-
 def column_schema_to_dict(column_schema) -> dict:
     attrs = [
         "name",
@@ -106,22 +82,6 @@ def column_schema_to_dict(column_schema) -> dict:
         "physical_type",
     ]
     return {attr: getattr(column_schema, attr) for attr in attrs}
-
-
-def column_info(parquet_file: str):
-    "get column information"
-    check_file_exists(parquet_file)
-    parquet_file = pq.ParquetFile(parquet_file)
-    schema = parquet_file.metadata.schema
-
-    column_schema_list = []
-    for idx, col_name in enumerate(schema.names):
-        # print('{}/{} {}'.format(
-        #     idx + 1, len(schema.names), str(schema.column(idx))))
-        column_schema_list.append(column_schema_to_dict(schema.column(idx)))
-
-    df = pd.DataFrame.from_records(column_schema_list)
-    print_tty_redir(df)
 
 
 def check_column_exists(parquet_file: str, column_name: str):
@@ -145,74 +105,12 @@ def get_min_row_groups(
     return min(all_row_groups, head_row_groups)
 
 
-def column_stats_set(parquet_file: str, all: bool = False):
-    "get number of row groups with column stats"
-    check_file_exists(parquet_file)
-    parquet_file = pq.ParquetFile(parquet_file)
-    metadata = parquet_file.metadata
-
-    head_row_groups = 5
-    total_row_groups = get_min_row_groups(
-        metadata.num_row_groups, head_row_groups, all
-    )
-
-    column_stats = [0] * metadata.num_columns
-    for row_idx in range(total_row_groups):
-        for col_idx in range(metadata.num_columns):
-            if metadata.row_group(row_idx).column(col_idx).is_stats_set:
-                column_stats[col_idx] += 1
-
-    for count, column in zip(column_stats, metadata.schema.names):
-        print("{:10d}/{}\t{}".format(count, total_row_groups, column))
-
-
-def column_stats(parquet_file: str, column_name: str, all: bool = False):
-    "get column stats for a single column"
-    check_file_exists(parquet_file)
-    metadata = check_column_exists(parquet_file, column_name)
-
-    head_row_groups = 5
-    total_row_groups = get_min_row_groups(
-        metadata.num_row_groups, head_row_groups, all
-    )
-
-    col_idx = metadata.schema.names.index(column_name)
-
-    stat_list = []
-    for row_idx in range(total_row_groups):
-        row_col_meta = metadata.row_group(row_idx).column(col_idx)
-        if row_col_meta.is_stats_set:
-            stat_list.append(row_col_meta.statistics.to_dict())
-
-    df = pd.DataFrame.from_records(stat_list)
-    print(df)
-
-
 """
 # duckdb parquet queries
 describe select * from parquet_scan('{})
 select * from parquet_metadata('{}')
 select * from parquet_schema('{}')
 """
-
-
-def duck(parquet_file: str):
-    "query parquet file using duckdb"
-    check_file_exists(parquet_file)
-    con = duckdb.connect(database=":memory:", read_only=False)
-
-    sql = """
-        select Year, count(*) ct, count(distinct Carrier) carrier_uniq_ct
-        from parquet_scan('{}')
-        group by Year
-    """
-    sql_query = sql.format(f"{parquet_file}")
-
-    start = time.time()
-    df = con.execute(sql_query).fetchdf()
-    elapsed = time.time() - start
-    print(f"Elapsed {elapsed:.4f}")
-    print(df)
 
 
 ParquetClickhouseType = NamedTuple(
@@ -262,37 +160,6 @@ def get_clickhouse_types(parquet_file):
     )
 
 
-def ch_local(parquet_file: str):
-    "query parquet file using clickhouse-local"
-    check_file_exists(parquet_file)
-
-    executable_name = "clickhouse-local"
-    check_executable(executable_name)
-    ch_types_str = get_clickhouse_types(parquet_file)
-    print(ch_types_str)
-
-    sql = """
-        select Year, count(*) ct, count(distinct Carrier) carrier_uniq_ct
-        from file(
-            '{}', Parquet,
-            '{}'
-        )
-        group by Year
-    """.format(
-        parquet_file, ch_types_str
-    )
-
-    clickhouse_query = sql.replace("\n", " ")
-
-    start = time.time()
-    output = check_output(
-        [executable_name, "--query", clickhouse_query], shell=False
-    )
-    elapsed = time.time() - start
-    print(f"Elapsed {elapsed:.4f}")
-    print(output.decode("utf-8").strip())
-
-
 def ch_server_184m():
     "query clickhouse-server online data"
 
@@ -315,55 +182,6 @@ def ch_server_184m():
     print(f"Elapsed {elapsed:.4f}")
     for row in results:
         print(*row)
-
-
-def arrow_parquet_example(parquet_file: str):
-    "use arrow to read parquet files"
-
-    check_file_exists(parquet_file)
-    local = fs.LocalFileSystem()
-
-    print("Counts by Year:")
-    start = time.time()
-    tbl = pq.read_table(parquet_file, filesystem=local)
-    result = pc.value_counts(tbl.column("Year"))
-    elapsed = time.time() - start
-    print(f"Elapsed {elapsed:.4f}")
-    print(result.to_pandas())
-
-
-def datafusion_parquet(parquet_file: str):
-    "use datafusion to process parquet files"
-
-    check_file_exists(parquet_file)
-    print("Parquet file must have extension .parquet")
-    ctx = datafusion.ExecutionContext()
-    ctx.register_parquet("t", parquet_file)
-    sql = """
-        select Year, count(*) ct, count(distinct Carrier) carrier_uniq_ct
-        from t
-        group by Year
-    """
-    start = time.time()
-    sql_result = ctx.sql(sql).collect()
-    result = pa.Table.from_batches(sql_result)
-    elapsed = time.time() - start
-    print(f"Elapsed {elapsed:.4f}")
-    print(result.to_pandas())
-
-    df = ctx.table("t")
-    start = time.time()
-    batches = df.aggregate(
-        [col("Year")],
-        [
-            f.count(col("Year")).alias("Year_ct"),
-            f.approx_distinct(col("Carrier")).alias("approx_dist"),
-        ],
-    )
-    result = pa.Table.from_batches(batches.collect())
-    elapsed = time.time() - start
-    print(f"Elapsed {elapsed:.4f}")
-    print("result:", result.to_pandas())
 
 
 def arrow_compute_example():
@@ -485,21 +303,200 @@ def datafusion_compute_example():
     )
 
 
+class Commands:
+    """
+    Query parquet files
+
+    python python/parq-cli.py duck scripts/ontime-10m.parquet
+    python python/parq-cli.py arrow_praquet scripts/ontime-10m.parquet
+    python python/parq-cli.py datafusion_parquet scripts/ontime-10m.parquet
+    """
+
+    def metadata(self, parquet_file: str):
+        "get metadata"
+        check_file_exists(parquet_file)
+        parquet_file = pq.ParquetFile(parquet_file)
+        metadata = parquet_file.metadata
+        print(metadata)
+
+    def schema(self, parquet_file: str):
+        "get column schema"
+        check_file_exists(parquet_file)
+        parquet_file = pq.ParquetFile(parquet_file)
+        metadata = parquet_file.metadata
+        print(metadata.schema)
+
+    def column_names(self, parquet_file: str):
+        "get column names"
+        check_file_exists(parquet_file)
+        parquet_file = pq.ParquetFile(parquet_file)
+        metadata = parquet_file.metadata
+        print("\n".join(metadata.schema.names))
+
+    def column_info(self, parquet_file: str):
+        "get column information"
+        check_file_exists(parquet_file)
+        parquet_file = pq.ParquetFile(parquet_file)
+        schema = parquet_file.metadata.schema
+
+        column_schema_list = []
+        for idx, col_name in enumerate(schema.names):
+            # print('{}/{} {}'.format(
+            #     idx + 1, len(schema.names), str(schema.column(idx))))
+            column_schema_list.append(
+                column_schema_to_dict(schema.column(idx))
+            )
+
+        df = pd.DataFrame.from_records(column_schema_list)
+        print_tty_redir(df)
+
+    def column_stats_set(self, parquet_file: str, all: bool = False):
+        "get number of row groups with column stats"
+        check_file_exists(parquet_file)
+        parquet_file = pq.ParquetFile(parquet_file)
+        metadata = parquet_file.metadata
+
+        head_row_groups = 5
+        total_row_groups = get_min_row_groups(
+            metadata.num_row_groups, head_row_groups, all
+        )
+
+        column_stats = [0] * metadata.num_columns
+        for row_idx in range(total_row_groups):
+            for col_idx in range(metadata.num_columns):
+                if metadata.row_group(row_idx).column(col_idx).is_stats_set:
+                    column_stats[col_idx] += 1
+
+        for count, column in zip(column_stats, metadata.schema.names):
+            print("{:10d}/{}\t{}".format(count, total_row_groups, column))
+
+    def column_stats(
+        self, parquet_file: str, column_name: str, all: bool = False
+    ):
+        "get column stats for a single column"
+        check_file_exists(parquet_file)
+        metadata = check_column_exists(parquet_file, column_name)
+
+        head_row_groups = 5
+        total_row_groups = get_min_row_groups(
+            metadata.num_row_groups, head_row_groups, all
+        )
+
+        col_idx = metadata.schema.names.index(column_name)
+
+        stat_list = []
+        for row_idx in range(total_row_groups):
+            row_col_meta = metadata.row_group(row_idx).column(col_idx)
+            if row_col_meta.is_stats_set:
+                stat_list.append(row_col_meta.statistics.to_dict())
+
+        df = pd.DataFrame.from_records(stat_list)
+        print(df)
+
+    def duck(self, parquet_file: str):
+        "query parquet file using duckdb"
+        check_file_exists(parquet_file)
+        con = duckdb.connect(database=":memory:", read_only=False)
+
+        sql = """
+            select Year, count(*) ct, count(distinct Carrier) carrier_uniq_ct
+            from parquet_scan('{}')
+            group by Year
+        """
+        sql_query = sql.format(f"{parquet_file}")
+
+        start = time.time()
+        df = con.execute(sql_query).fetchdf()
+        elapsed = time.time() - start
+        print(f"Elapsed {elapsed:.4f}")
+        print(df)
+
+    def ch_local(parquet_file: str):
+        "query parquet file using clickhouse-local"
+        check_file_exists(parquet_file)
+
+        executable_name = "clickhouse-local"
+        check_executable(executable_name)
+        ch_types_str = get_clickhouse_types(parquet_file)
+        print(ch_types_str)
+
+        sql = """
+            select Year, count(*) ct, count(distinct Carrier) carrier_uniq_ct
+            from file(
+                '{}', Parquet,
+                '{}'
+            )
+            group by Year
+        """.format(
+            parquet_file, ch_types_str
+        )
+
+        clickhouse_query = sql.replace("\n", " ")
+
+        start = time.time()
+        output = check_output(
+            [executable_name, "--query", clickhouse_query], shell=False
+        )
+        elapsed = time.time() - start
+        print(f"Elapsed {elapsed:.4f}")
+        print(output.decode("utf-8").strip())
+
+    def arrow_parquet(self, parquet_file: str):
+        "use arrow to read parquet files"
+
+        check_file_exists(parquet_file)
+        local = fs.LocalFileSystem()
+
+        print("Counts by Year:")
+        start = time.time()
+        tbl = pq.read_table(parquet_file, filesystem=local)
+        result = pc.value_counts(tbl.column("Year"))
+        elapsed = time.time() - start
+        print(f"Elapsed {elapsed:.4f}")
+        print(result.to_pandas())
+
+    def datafusion_parquet(self, parquet_file: str):
+        "use datafusion to process parquet files"
+
+        check_file_exists(parquet_file)
+        ctx = datafusion.ExecutionContext()
+        ctx.register_parquet("t", parquet_file)
+        sql = """
+            select Year, count(*) ct, count(distinct Carrier) carrier_uniq_ct
+            from t
+            group by Year
+        """
+        start = time.time()
+        sql_result = ctx.sql(sql).collect()
+        result = pa.Table.from_batches(sql_result)
+        elapsed = time.time() - start
+        print(f"Elapsed {elapsed:.4f}")
+        print(result.to_pandas())
+
+        df = ctx.table("t")
+        start = time.time()
+        batches = df.aggregate(
+            [col("Year")],
+            [
+                f.count(col("Year")).alias("Year_ct"),
+                f.approx_distinct(col("Carrier")).alias("approx_dist"),
+            ],
+        )
+        result = pa.Table.from_batches(batches.collect())
+        elapsed = time.time() - start
+        print(f"Elapsed {elapsed:.4f}")
+        print("result:", result.to_pandas())
+
+
+
 def main():
+    fire.Fire(Commands())
+    return
     fire.Fire(
         {
-            "metadata": metadata,
-            "schema": schema,
-            "column_names": column_names,
-            "column_info": column_info,
-            "column_stats_set": column_stats_set,
-            "column_stats": column_stats,
-            "duck": duck,
             "ch_local": ch_local,
             "ch_server_184m": ch_server_184m,
-            "arrow_parquet_example": arrow_parquet_example,
             "arrow_compute_example": arrow_compute_example,
-            "datafusion_parquet": datafusion_parquet,
             "datafusion_compute_example": datafusion_compute_example,
         }
     )
