@@ -413,6 +413,15 @@ SQL="select Year, count(*) ct from file('scripts/ontime-10m.pq', Parquet, 'Year 
 clickhouse-local --query "$SQL"
 ```
 
+### Clickhouse file parquet queries
+
+```
+clickhouse-client -m
+
+clickhouse-local -q \
+"select count(*) from file('/vagrant/scripts/ontime-100m.parquet', Parquet, 'Year UInt16, FlightDate Date, Carrier String, FlightNum String') group by Year"
+```
+
 ## Performance duckdb vs clickhouse
 
 Clickhouse is installed in the Vagrant virtual machine directly without using
