@@ -6,6 +6,7 @@ import time
 import os
 import pathlib
 import sys
+import numpy as np
 
 from distutils.spawn import find_executable
 from clickhouse_driver import Client
@@ -15,6 +16,7 @@ from typing import NamedTuple
 from subprocess import check_output
 
 import pyarrow as pa
+import pyarrow.dataset as ds
 from pyarrow import fs
 import pyarrow.parquet as pq
 import pyarrow.compute as pc
@@ -393,8 +395,22 @@ class Commands:
         df = pd.DataFrame.from_records(stat_list)
         print(df)
 
-    def duck(self, parquet_file: str):
-        "query parquet file using duckdb"
+    def pandas(self, parquet_file: str):
+        "query parquet file using pandas"
+        check_file_exists(parquet_file)
+
+        start = time.time()
+        df = pd.read_parquet(parquet_file, engine='pyarrow')
+        df2 = df.groupby('Year').agg(
+            ct=('Year', np.size),
+            carrier_uniq_ct=('Carrier', lambda srs: np.unique(srs).size)
+        )
+        elapsed = time.time() - start
+        print(f"Elapsed {elapsed:.4f}")
+        print(df2)
+
+    def duck_pandas(self, parquet_file: str):
+        "query parquet file using duckdb and pandas"
         check_file_exists(parquet_file)
         con = duckdb.connect(database=":memory:", read_only=False)
 
@@ -407,6 +423,23 @@ class Commands:
 
         start = time.time()
         df = con.execute(sql_query).fetchdf()
+        elapsed = time.time() - start
+        print(f"Elapsed {elapsed:.4f}")
+        print(df)
+
+    def duck_arrow(self, parquet_file):
+        "query parquet file using duckdb and arrow"
+        check_file_exists(parquet_file)
+
+        ontime = ds.dataset(parquet_file)
+        ontime_db = duckdb.arrow(ontime)
+
+        start = time.time()
+        df = ontime_db.aggregate("""
+            Year,
+            count(*) as ct,
+            count(distinct Carrier) as carrier_uniq_ct
+        """, "Year").df()
         elapsed = time.time() - start
         print(f"Elapsed {elapsed:.4f}")
         print(df)
