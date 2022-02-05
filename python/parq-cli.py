@@ -502,14 +502,6 @@ class Commands:
 
 def main():
     fire.Fire(Commands())
-    return
-    fire.Fire(
-        {
-            "ch_server_184m": ch_server_184m,
-            "arrow_compute_example": arrow_compute_example,
-            "datafusion_compute_example": datafusion_compute_example,
-        }
-    )
 
 
 if __name__ == "__main__":

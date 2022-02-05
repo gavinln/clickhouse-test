@@ -39,14 +39,14 @@ SCRIPT_DIR = Path(__file__).parent.resolve()
 
 
 def intword(value):
-    return '{:,d}'.format(value)
+    return f'{value:,d}'
 
 
 @contextmanager
 def timed():
     'Simple timer context manager, implemented using a generator function'
     start = time()
-    print("Starting at {:%H:%M:%S}".format(dt.fromtimestamp(start)))
+    print(f"Starting at {dt.fromtimestamp(start):%H:%M:%S}")
 
     yield
 
@@ -86,7 +86,7 @@ def main() -> None:
         log.info('reading parquet file: size with numpy types %s',
                  intword(df.memory_usage(deep=True).sum()))
 
-    log.info('data size: {}'.format(df.shape))
+    log.info(f'data size: {df.shape}')
 
     df2 = df.convert_dtypes()  # converts to more efficient pandas data types
     log.info('size with pandas types %s',
