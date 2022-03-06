@@ -4,7 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-ipython = "*"
+ipython = "7.32.0"
 dask = "*"
 pytest = "*"
 flake8 = "*"
@@ -22,7 +22,7 @@ polars = "*"
 duckdb = "*"
 typer = "*"
 seaborn = "*"
-pyarrow = "*"
+pyarrow = "==7.0.0"
 awswrangler = "*"
 black = "*"
 datafusion = "*"

@@ -490,9 +490,21 @@ class Commands:
 
         print("Counts by Year (group_by not supported)")
         return
+
+        t1 = pa.table([
+              pa.array(["a", "a", "b", "b", "c"]),
+              pa.array([1, 2, 3, 4, 5]),
+        ], names=["keys", "values"])
+        t2 = t1.group_by("keys").aggregate([
+           ("values", "sum"),
+           ("keys", "count")
+
+        ])
+        print(t2)
+
         start = time.time()
         tbl = pq.read_table(parquet_file, filesystem=local)
-        result = tbl.group_by("Year").aggregate([("values", "hash_count")])
+        result = tbl.group_by("Year").aggregate([("values", "count")])
         elapsed = time.time() - start
         print(f"Elapsed {elapsed:.4f}")
         print(result.to_pandas())
