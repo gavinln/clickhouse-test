@@ -4,7 +4,6 @@ export PYTHONBREAKPOINT=IPython.embed
 """
 import logging
 import time
-import os
 import pathlib
 import sys
 import numpy as np
@@ -17,8 +16,6 @@ import pyarrow.compute as pc
 
 import duckdb
 import pandas as pd
-
-import numpy as np
 
 
 log = logging.getLogger(__name__)
