@@ -27,6 +27,7 @@ awswrangler = "*"
 black = "*"
 datafusion = "*"
 python-lsp-server = "*"
+numpy = "*"
 
 [dev-packages]
 
