@@ -52,7 +52,7 @@ def read_table_from_parquet(parquet_file):
 
 def main():
     rows = 40_000_000
-    # rows = 4
+    rows = 40_000
     df = create_dataframe(rows)
     parquet_file = 'temp.parquet'
     write_dataframe_to_parquet(df, parquet_file)
