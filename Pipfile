@@ -28,8 +28,12 @@ black = "*"
 datafusion = "*"
 python-lsp-server = "*"
 numpy = "*"
+jupyter-console = "*"
 
 [dev-packages]
+pynvim = "*"
+jupyter-client = "*"
+ueberzug = "*"
 
 [requires]
 python_version = "3.8"
