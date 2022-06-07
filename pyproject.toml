@@ -1,11 +1,3 @@
 [tool.black]
 line-length = 79
 skip-string-normalization = true
-
-[tool.pyright]
-include = ["python", "notebooks"]
-exclude = ["**/.ipynb_checkpoints"]
-venvPath = "/home/gavin/.local/share/virtualenvs"
-venv = "clickhouse-test-22mSHniD"
-verboseOutput = true
-

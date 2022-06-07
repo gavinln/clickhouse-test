@@ -18,7 +18,11 @@ from subprocess import check_output
 import pyarrow as pa
 import pyarrow.dataset as ds
 from pyarrow import fs
-import pyarrow.parquet as pq
+
+# follwing import raises an ImportError
+# cannot import name 'FileEncryptionProperties' from 'pyarrow._parquet'
+# import pyarrow.parquet as pq
+
 import pyarrow.compute as pc
 
 import duckdb
@@ -91,11 +95,11 @@ def check_column_exists(parquet_file: str, column_name: str):
 
     returns parquet metadata
     """
-    parquet_file = pq.ParquetFile(parquet_file)
-    schema = parquet_file.metadata.schema
+    pq_file = pq.ParquetFile(parquet_file)
+    schema = pq_file.metadata.schema
     if column_name not in schema.names:
         sys.exit(f"Invalid column {column_name}")
-    return parquet_file.metadata
+    return pq_file.metadata
 
 
 def get_min_row_groups(
@@ -309,37 +313,42 @@ class Commands:
     """
     Query parquet files
 
-    python python/parq-cli.py duck scripts/ontime-10m.parquet
-    python python/parq-cli.py arrow_praquet scripts/ontime-10m.parquet
+    python python/parq-cli.py duck_arrow scripts/ontime-10m.parquet
+    python python/parq-cli.py duck_pandas scripts/ontime-10m.parquet
+    python python/parq-cli.py arrow_parquet scripts/ontime-10m.parquet
     python python/parq-cli.py datafusion_parquet scripts/ontime-10m.parquet
     """
 
     def metadata(self, parquet_file: str):
         "get metadata"
+        _ = self  # disable lsp unused warning
         check_file_exists(parquet_file)
-        parquet_file = pq.ParquetFile(parquet_file)
-        metadata = parquet_file.metadata
+        pq_file = pq.ParquetFile(parquet_file)
+        metadata = pq_file.metadata
         print(metadata)
 
     def schema(self, parquet_file: str):
         "get column schema"
+        _ = self  # disable lsp unused warning
         check_file_exists(parquet_file)
-        parquet_file = pq.ParquetFile(parquet_file)
-        metadata = parquet_file.metadata
+        pq_file = pq.ParquetFile(parquet_file)
+        metadata = pq_file.metadata
         print(metadata.schema)
 
     def column_names(self, parquet_file: str):
         "get column names"
+        _ = self  # disable lsp unused warning
         check_file_exists(parquet_file)
-        parquet_file = pq.ParquetFile(parquet_file)
-        metadata = parquet_file.metadata
+        pq_file = pq.ParquetFile(parquet_file)
+        metadata = pq_file.metadata
         print("\n".join(metadata.schema.names))
 
     def column_info(self, parquet_file: str):
         "get column information"
+        _ = self  # disable lsp unused warning
         check_file_exists(parquet_file)
-        parquet_file = pq.ParquetFile(parquet_file)
-        schema = parquet_file.metadata.schema
+        pq_file = pq.ParquetFile(parquet_file)
+        schema = pq_file.metadata.schema
 
         column_schema_list = []
         for idx, col_name in enumerate(schema.names):
@@ -354,9 +363,10 @@ class Commands:
 
     def column_stats_set(self, parquet_file: str, all: bool = False):
         "get number of row groups with column stats"
+        _ = self  # disable lsp unused warning
         check_file_exists(parquet_file)
-        parquet_file = pq.ParquetFile(parquet_file)
-        metadata = parquet_file.metadata
+        pq_file = pq.ParquetFile(parquet_file)
+        metadata = pq_file.metadata
 
         head_row_groups = 5
         total_row_groups = get_min_row_groups(
@@ -376,6 +386,7 @@ class Commands:
         self, parquet_file: str, column_name: str, all: bool = False
     ):
         "get column stats for a single column"
+        _ = self  # disable lsp unused warning
         check_file_exists(parquet_file)
         metadata = check_column_exists(parquet_file, column_name)
 
@@ -397,13 +408,14 @@ class Commands:
 
     def pandas(self, parquet_file: str):
         "query parquet file using pandas"
+        _ = self  # disable lsp unused warning
         check_file_exists(parquet_file)
 
         start = time.time()
         df = pd.read_parquet(parquet_file, engine='pyarrow')
         df2 = df.groupby('Year').agg(
             ct=('Year', np.size),
-            carrier_uniq_ct=('Carrier', lambda srs: np.unique(srs).size)
+            carrier_uniq_ct=('Carrier', lambda srs: np.unique(srs).size),
         )
         elapsed = time.time() - start
         print(f"Elapsed {elapsed:.4f}")
@@ -411,6 +423,7 @@ class Commands:
 
     def duck_pandas(self, parquet_file: str):
         "query parquet file using duckdb and pandas"
+        _ = self  # disable lsp unused warning
         check_file_exists(parquet_file)
         con = duckdb.connect(database=":memory:", read_only=False)
 
@@ -429,23 +442,28 @@ class Commands:
 
     def duck_arrow(self, parquet_file):
         "query parquet file using duckdb and arrow"
+        _ = self  # disable lsp unused warning
         check_file_exists(parquet_file)
 
         ontime = ds.dataset(parquet_file)
         ontime_db = duckdb.arrow(ontime)
 
         start = time.time()
-        df = ontime_db.aggregate("""
+        df = ontime_db.aggregate(
+            """
             Year,
             count(*) as ct,
             count(distinct Carrier) as carrier_uniq_ct
-        """, "Year").df()
+        """,
+            "Year",
+        ).df()
         elapsed = time.time() - start
         print(f"Elapsed {elapsed:.4f}")
         print(df)
 
-    def ch_local(parquet_file: str):
+    def ch_local(self, parquet_file: str):
         "query parquet file using clickhouse-local"
+        _ = self  # disable lsp unused warning
         check_file_exists(parquet_file)
 
         executable_name = "clickhouse-local"
@@ -476,8 +494,9 @@ class Commands:
 
     def arrow_parquet(self, parquet_file: str):
         "use arrow to read parquet files"
-
+        _ = self  # disable lsp unused warning
         check_file_exists(parquet_file)
+
         local = fs.LocalFileSystem()
 
         print("Counts by Year:")
@@ -489,28 +508,10 @@ class Commands:
         print(result.to_pandas())
 
         print("Counts by Year (group_by not supported)")
-        return
-
-        t1 = pa.table([
-              pa.array(["a", "a", "b", "b", "c"]),
-              pa.array([1, 2, 3, 4, 5]),
-        ], names=["keys", "values"])
-        t2 = t1.group_by("keys").aggregate([
-           ("values", "sum"),
-           ("keys", "count")
-
-        ])
-        print(t2)
-
-        start = time.time()
-        tbl = pq.read_table(parquet_file, filesystem=local)
-        result = tbl.group_by("Year").aggregate([("values", "count")])
-        elapsed = time.time() - start
-        print(f"Elapsed {elapsed:.4f}")
-        print(result.to_pandas())
 
     def datafusion_parquet(self, parquet_file: str):
         "use datafusion to process parquet files"
+        _ = self
 
         check_file_exists(parquet_file)
         ctx = datafusion.ExecutionContext()
@@ -529,20 +530,6 @@ class Commands:
         elapsed = time.time() - start
         print(f"Elapsed {elapsed:.4f}")
         print("result:", result.to_pandas())
-        return
-
-        sql = """
-        -- select Year, count(*) ct, count(distinct Carrier) carrier_uniq_ct
-            select Year, count(*) ct
-            from t
-            group by Year
-        """
-        start = time.time()
-        sql_result = ctx.sql(sql).collect()
-        result = pa.Table.from_batches(sql_result)
-        elapsed = time.time() - start
-        print(f"Elapsed {elapsed:.4f}")
-        print(result.to_pandas())
 
 
 def main():
