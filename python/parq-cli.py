@@ -1,11 +1,21 @@
 """
-Use metaflow to read and write to S3
+Compare pandas, duckdb, pyarrow, polars, clickhouse
+
+python parq-cli.py pandas ~/ontime-100m.parquet  # 62s
+python parq-cli.py duck-pandas ~/ontime-100m.parquet  # 7s
+python parq-cli.py duck-arrow ~/ontime-100m.parquet  # 8s
+python parq-cli.py arrow-parquet ~/ontime-100m.parquet  # 5.7s
+python parq-cli.py arrow-parquet-partitioned ~/ontime-100m.parquet  # 4.8s
+python parq-cli.py arrow-dataset-parquet ~/ontime-100m.parquet  # 4.4s
+python parq-cli.py polars-parquet ~/ontime-100m.parquet  # 5s
 """
 import logging
 import time
 import os
 import pathlib
 import sys
+import shutil
+
 import numpy as np
 
 from distutils.spawn import find_executable
@@ -17,12 +27,7 @@ from subprocess import check_output
 
 import pyarrow as pa
 import pyarrow.dataset as ds
-from pyarrow import fs
-
-# follwing import raises an ImportError
-# cannot import name 'FileEncryptionProperties' from 'pyarrow._parquet'
-# import pyarrow.parquet as pq
-
+import pyarrow.parquet as pq
 import pyarrow.compute as pc
 
 import duckdb
@@ -32,6 +37,8 @@ import datafusion
 from datafusion import functions as f
 from datafusion import col
 from datafusion import literal
+
+import polars as pl
 
 import fire
 
@@ -195,7 +202,7 @@ def arrow_compute_example():
 
     # https://arrow.apache.org/cookbook/py/data.html
 
-    tbl = pa.table({"name": list("aabccc"), "value": list(range(6))})
+    tbl = pa.table({"name": list("aabccc"), "value": [1, 1, 1, 2, 3, 3]})
     print("table data")
     print(tbl.to_pandas())
 
@@ -206,11 +213,7 @@ def arrow_compute_example():
         pc.count_distinct(tbl.column("name")).as_py(),
     )
 
-    print("min name column:", pc.min(tbl.column("name")).as_py())
-
     print("min value column:", pc.min(tbl.column("value")).as_py())
-
-    print("max value column:", pc.max(tbl.column("value")).as_py())
 
     print("min, max value column:", pc.min_max(tbl.column("value")).as_py())
 
@@ -232,6 +235,23 @@ def arrow_compute_example():
     print(
         "rows where value is greater than 2",
         pc.filter(tbl, pc.greater(tbl.column("value"), 2)).to_pandas(),
+    )
+
+    print(
+        "table count",
+        tbl.group_by("name").aggregate([("value", "sum")]).to_pandas(),
+    )
+
+    print(
+        "table count",
+        tbl.group_by("name").aggregate([("value", "count")]).to_pandas(),
+    )
+
+    print(
+        "table count distinct",
+        tbl.group_by("name")
+        .aggregate([("value", "count_distinct")])
+        .to_pandas(),
     )
 
 
@@ -309,14 +329,42 @@ def datafusion_compute_example():
     )
 
 
+def write_parquet_partitioned(parquet_file: str, partition_cols: list[str]):
+    local = pa.fs.LocalFileSystem()
+    tbl = pq.read_table(parquet_file, filesystem=local)
+    pq_root_path = pathlib.Path(parquet_file).with_suffix(suffix='')
+    home_pq_path = pathlib.Path.home() / '.parq-cli' / pq_root_path.name
+    if home_pq_path.exists():
+        shutil.rmtree(home_pq_path)
+    pq.write_to_dataset(
+        tbl, home_pq_path, partition_cols=partition_cols, compression="lz4"
+    )
+    return home_pq_path
+
+
+def write_feather_file(parquet_file: str):
+    local = pa.fs.LocalFileSystem()
+    tbl = pq.read_table(parquet_file, filesystem=local)
+    feather_file = pathlib.Path(parquet_file).with_suffix(suffix='.feather')
+    home_feather = pathlib.Path.home() / '.parq-cli' / feather_file.name
+    if home_feather.exists():
+        home_feather.unlink()
+    pa.feather.write_feather(tbl, home_feather, compression="lz4")
+    return home_feather
+
+
 class Commands:
     """
     Query parquet files
 
-    python python/parq-cli.py duck_arrow scripts/ontime-10m.parquet
-    python python/parq-cli.py duck_pandas scripts/ontime-10m.parquet
-    python python/parq-cli.py arrow_parquet scripts/ontime-10m.parquet
-    python python/parq-cli.py datafusion_parquet scripts/ontime-10m.parquet
+    python parq-cli.py pandas ~/ontime-100m.parquet  # 62s
+    python parq-cli.py duck-pandas ~/ontime-100m.parquet  # 7s
+    python parq-cli.py duck-arrow ~/ontime-100m.parquet  # 8s
+    python parq-cli.py arrow-parquet ~/ontime-100m.parquet  # 5.7s
+    python parq-cli.py arrow-parquet-partitioned ~/ontime-100m.parquet  # 4.8s
+    python parq-cli.py arrow-parquet-feather ~/ontime-100m.parquet  # 4.3s
+    python parq-cli.py arrow-dataset-parquet ~/ontime-100m.parquet  # 4.4s
+    python parq-cli.py polars-parquet ~/ontime-100m.parquet  # 5s
     """
 
     def metadata(self, parquet_file: str):
@@ -405,6 +453,25 @@ class Commands:
 
         df = pd.DataFrame.from_records(stat_list)
         print(df)
+
+    def polars_parquet(self, parquet_file: str):
+        "use datafusion to process parquet files"
+        _ = self
+
+        check_file_exists(parquet_file)
+
+        start = time.time()
+        df = pl.read_parquet(parquet_file)
+
+        result = df.groupby("Year").agg(
+            [
+                pl.count("Year").alias("Year_count"),
+            ]
+        )
+        elapsed = time.time() - start
+        print(f"Elapsed {elapsed:.4f}")
+        print("result:\n", result.to_pandas())
+        print('Does not support count distinct of list of uint8')
 
     def pandas(self, parquet_file: str):
         "query parquet file using pandas"
@@ -497,17 +564,74 @@ class Commands:
         _ = self  # disable lsp unused warning
         check_file_exists(parquet_file)
 
-        local = fs.LocalFileSystem()
+        local = pa.fs.LocalFileSystem()
 
-        print("Counts by Year:")
         start = time.time()
         tbl = pq.read_table(parquet_file, filesystem=local)
-        result = pc.value_counts(tbl.column("Year"))
+
+        result = tbl.group_by("Year").aggregate(
+            [("Year", "count"), ("Carrier", "count_distinct")]
+        )
         elapsed = time.time() - start
         print(f"Elapsed {elapsed:.4f}")
         print(result.to_pandas())
 
-        print("Counts by Year (group_by not supported)")
+    def arrow_parquet_partitioned(self, parquet_file: str):
+        "use arrow to read parquet files"
+        _ = self  # disable lsp unused warning
+        check_file_exists(parquet_file)
+
+        partition_cols = ["Year"]
+        home_pq_path = write_parquet_partitioned(parquet_file, partition_cols)
+
+        start = time.time()
+        local = pa.fs.LocalFileSystem()
+        tbl = pq.read_table(home_pq_path, filesystem=local)
+        result = tbl.group_by("Year").aggregate(
+            [("Year", "count"), ("Carrier", "count_distinct")]
+        )
+        elapsed = time.time() - start
+        print(f"Elapsed {elapsed:.4f}")
+        print(result.to_pandas())
+
+    def arrow_parquet_feather(self, parquet_file: str):
+        "use arrow to read parquet files"
+        _ = self  # disable lsp unused warning
+        check_file_exists(parquet_file)
+
+        home_feather = write_feather_file(parquet_file)
+
+        start = time.time()
+        tbl = pa.feather.read_table(
+            home_feather, columns=["Year", "Carrier"])
+        result = tbl.group_by("Year").aggregate(
+            [("Year", "count"), ("Carrier", "count_distinct")]
+        )
+        elapsed = time.time() - start
+        print(f"Elapsed {elapsed:.4f}")
+        print(result.to_pandas())
+
+    def arrow_dataset_parquet(self, parquet_file: str):
+        "use arrow to read parquet files"
+        _ = self  # disable lsp unused warning
+        check_file_exists(parquet_file)
+
+        print('pyarrow bytes {:,d}'.format(pa.total_allocated_bytes()))
+        tbl = pq.read_table(parquet_file)
+        print('pyarrow bytes {:,d}'.format(pa.total_allocated_bytes()))
+        del tbl
+        print('pyarrow bytes {:,d}'.format(pa.total_allocated_bytes()))
+
+        start = time.time()
+        tbl = ds.dataset(parquet_file, format="parquet").to_table(
+            columns=["Year", "Carrier"]
+        )
+        result = tbl.group_by("Year").aggregate(
+            [("Year", "count"), ("Carrier", "count_distinct")]
+        )
+        elapsed = time.time() - start
+        print(f"Elapsed {elapsed:.4f}")
+        print(result.to_pandas())
 
     def datafusion_parquet(self, parquet_file: str):
         "use datafusion to process parquet files"
@@ -534,6 +658,7 @@ class Commands:
 
 def main():
     fire.Fire(Commands())
+    # fire.Fire({'arrow-compute-example': arrow_compute_example})
 
 
 if __name__ == "__main__":

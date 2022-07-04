@@ -422,7 +422,7 @@ clickhouse-local -q \
 "select count(*) from file('/vagrant/scripts/ontime-100m.parquet', Parquet, 'Year UInt16, FlightDate Date, Carrier String, FlightNum String') group by Year"
 ```
 
-## Performance duckdb vs clickhouse
+## Performance duckdb vs arrow vs clickhouse
 
 Clickhouse is installed in the Vagrant virtual machine directly without using
 Docker containers. Copy the parquet files to ~ for the best performance
@@ -444,22 +444,34 @@ pipenv shell
 3. Measure the performance using a 10 million row dataset
 
 ```
-python python/parq-cli.py duck scripts/ontime-10m.parquet  # 1.0s
-python python/parq-cli.py ch-local scripts/ontime-10m.parquet  # 0.8s
+cp scripts/ontime-10m.parquet ~/
+cd python
+python parq-cli.py pandas ~/ontime-10m.parquet  # 6.7s
+python parq-cli.py duck-pandas ~/ontime-10m.parquet  # 0.7s
+python parq-cli.py duck-arrow ~/ontime-10m.parquet  # 0.8s
+python parq-cli.py arrow-parquet ~/ontime-10m.parquet  # 0.5s
+python parq-cli.py arrow-dataset-parquet ~/ontime-10m.parquet  # 0.4s
+python parq-cli.py polars-parquet ~/ontime-10m.parquet  # 0.5s
 ```
 
 4. Measure the performance using a 50 million row dataset
 
 ```
-python python/parq-cli.py duck scripts/ontime-50m.parquet  # 4.9s
-python python/parq-cli.py ch_local scripts/ontime-50m.parquet  # 4.3s
+python parq-cli.py duck ~/ontime-50m.parquet  # 4.9s
+python parq-cli.py ch_local ~/ontime-50m.parquet  # 4.3s
 ```
 
 5. Measure the performance using a 100 million row dataset
 
 ```
-python python/parq-cli.py duck scripts/ontime-100m.parquet  # 10.0s
-python python/parq-cli.py ch_local scripts/ontime-100m.parquet  # 6.9
+cp scripts/ontime-100m.parquet ~/
+cd python
+python parq-cli.py pandas ~/ontime-100m.parquet  # 62s
+python parq-cli.py duck-pandas ~/ontime-100m.parquet  # 7s
+python parq-cli.py duck-arrow ~/ontime-100m.parquet  # 8s
+python parq-cli.py arrow-parquet ~/ontime-100m.parquet  # 5s
+python parq-cli.py arrow-dataset-parquet ~/ontime-100m.parquet  # 5s
+python parq-cli.py polars-parquet ~/ontime-100m.parquet  # 5s
 ```
 
 ## Polars

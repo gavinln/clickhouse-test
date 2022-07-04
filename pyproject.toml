@@ -1,3 +1,16 @@
+[project]
+name = "clickhouse_test"
+requires-python = ">=3.8,<3.11"
+classifiers = [
+    "Programming Language :: Rust",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: Implementation :: PyPy",
+]
+
 [tool.black]
 line-length = 79
 skip-string-normalization = true
+
+[tool.mypy]
+ignore_missing_imports = true
+check_untyped_defs = true
