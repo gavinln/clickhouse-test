@@ -474,6 +474,9 @@ python parq-cli.py arrow-dataset-parquet ~/ontime-100m.parquet  # 5s
 python parq-cli.py polars-parquet ~/ontime-100m.parquet  # 5s
 ```
 
+## Connect duckdb and arrow to S3
+
+
 ## Polars
 
 * [Polars github][900]

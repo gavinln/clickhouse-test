@@ -12,7 +12,7 @@ python-lsp-server = "*"
 pytype = "*"
 ipython = "*"
 pandas = "*"
-pyarrow = "==8.0.0"
+pyarrow = "*"
 duckdb = "*"
 dask = "*"
 datafusion = "*"
@@ -30,4 +30,4 @@ seaborn = "*"
 [dev-packages]
 
 [requires]
-python_version = "3.10"
+python_version = "3.8"
