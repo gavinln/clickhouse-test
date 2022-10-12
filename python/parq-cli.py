@@ -16,6 +16,8 @@ import pathlib
 import sys
 import shutil
 
+from typing import List
+
 import numpy as np
 
 from distutils.spawn import find_executable
@@ -329,7 +331,7 @@ def datafusion_compute_example():
     )
 
 
-def write_parquet_partitioned(parquet_file: str, partition_cols: list[str]):
+def write_parquet_partitioned(parquet_file: str, partition_cols: List[str]):
     local = pa.fs.LocalFileSystem()
     tbl = pq.read_table(parquet_file, filesystem=local)
     pq_root_path = pathlib.Path(parquet_file).with_suffix(suffix='')
@@ -465,7 +467,7 @@ class Commands:
 
         result = df.groupby("Year").agg(
             [
-                pl.count("Year").alias("Year_count"),
+                pl.count("Year").alias("Year_count")
             ]
         )
         elapsed = time.time() - start
