@@ -2,12 +2,21 @@
 Compare pandas, duckdb, pyarrow, polars, clickhouse
 
 python parq-cli.py pandas ~/ontime-100m.parquet  # 62s
-python parq-cli.py duck-pandas ~/ontime-100m.parquet  # 7s
-python parq-cli.py duck-arrow ~/ontime-100m.parquet  # 8s
-python parq-cli.py arrow-parquet ~/ontime-100m.parquet  # 5.7s
+python parq-cli.py duck-pandas ~/ontime-100m.parquet  # 7.6s
+python parq-cli.py duck-arrow ~/ontime-100m.parquet  # 8.2s
+python parq-cli.py arrow-parquet ~/ontime-100m.parquet  # 5s
 python parq-cli.py arrow-parquet-partitioned ~/ontime-100m.parquet  # 4.8s
 python parq-cli.py arrow-dataset-parquet ~/ontime-100m.parquet  # 4.4s
-python parq-cli.py polars-parquet ~/ontime-100m.parquet  # 5s
+python parq-cli.py polars-parquet ~/ontime-100m.parquet  # 4.2s
+
+
+python parq-cli.py pandas /mnt/ramdisk/ontime-100m.parquet  # 62s
+python parq-cli.py duck-pandas /mnt/ramdisk/ontime-100m.parquet  # 7.6s
+python parq-cli.py duck-arrow /mnt/ramdisk/ontime-100m.parquet  # 8.2s
+python parq-cli.py arrow-parquet /mnt/ramdisk/ontime-100m.parquet  # 5s
+python parq-cli.py arrow-parquet-partitioned /mnt/ramdisk/ontime-100m.parquet  # 4.8s
+python parq-cli.py arrow-dataset-parquet /mnt/ramdisk/ontime-100m.parquet  # 4.4s
+python parq-cli.py polars-parquet /mnt/ramdisk/ontime-100m.parquet  # 4.2s
 """
 import logging
 import time
@@ -463,17 +472,17 @@ class Commands:
         check_file_exists(parquet_file)
 
         start = time.time()
-        df = pl.read_parquet(parquet_file)
-
+        df = pl.scan_parquet(parquet_file)
         result = df.groupby("Year").agg(
             [
-                pl.count("Year").alias("Year_count")
+                pl.count("Year").alias("Year_count") ,
+                pl.col("Carrier").unique().count().alias("carrier_uniq_ct")
             ]
         )
+        df_pandas = result.collect().to_pandas().sort_values(by='Year')
         elapsed = time.time() - start
         print(f"Elapsed {elapsed:.4f}")
-        print("result:\n", result.to_pandas())
-        print('Does not support count distinct of list of uint8')
+        print("result:\n", df_pandas)
 
     def pandas(self, parquet_file: str):
         "query parquet file using pandas"
@@ -617,12 +626,6 @@ class Commands:
         "use arrow to read parquet files"
         _ = self  # disable lsp unused warning
         check_file_exists(parquet_file)
-
-        print('pyarrow bytes {:,d}'.format(pa.total_allocated_bytes()))
-        tbl = pq.read_table(parquet_file)
-        print('pyarrow bytes {:,d}'.format(pa.total_allocated_bytes()))
-        del tbl
-        print('pyarrow bytes {:,d}'.format(pa.total_allocated_bytes()))
 
         start = time.time()
         tbl = ds.dataset(parquet_file, format="parquet").to_table(
