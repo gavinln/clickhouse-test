@@ -32,3 +32,9 @@ tmux:  ## start tmux
 .PHONY: ch-client
 ch-client:  ## start clickhouse client
 	clickhouse-client -m --highlight 0 --output_format_pretty_color 0
+
+.PHONY: ruff
+ruff:  ## run ruff Python style checker
+	@test -n "$(fl)" || { echo "fl= not specified"; exit 1; }
+	@test -f "$(fl)" || { echo "file $(fl) does not exist"; exit 1; }
+	ruff --select F,E,D --ignore D203,D212 $(fl)
