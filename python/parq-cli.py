@@ -1,22 +1,13 @@
 """
-Compare pandas, duckdb, pyarrow, polars, clickhouse
+Compare pandas, duckdb, pyarrow, polars, clickhouse.
 
-python parq-cli.py pandas ~/ontime-100m.parquet  # 62s
-python parq-cli.py duck-pandas ~/ontime-100m.parquet  # 7.6s
-python parq-cli.py duck-arrow ~/ontime-100m.parquet  # 8.2s
+python parq-cli.py pandas ~/ontime-100m.parquet  # 65s
+python parq-cli.py duck-pandas ~/ontime-100m.parquet  # 0.9s
+python parq-cli.py duck-arrow ~/ontime-100m.parquet  # 1.4s
 python parq-cli.py arrow-parquet ~/ontime-100m.parquet  # 5s
 python parq-cli.py arrow-parquet-partitioned ~/ontime-100m.parquet  # 4.8s
 python parq-cli.py arrow-dataset-parquet ~/ontime-100m.parquet  # 4.4s
-python parq-cli.py polars-parquet ~/ontime-100m.parquet  # 4.2s
-
-
-python parq-cli.py pandas /mnt/ramdisk/ontime-100m.parquet  # 62s
-python parq-cli.py duck-pandas /mnt/ramdisk/ontime-100m.parquet  # 7.6s
-python parq-cli.py duck-arrow /mnt/ramdisk/ontime-100m.parquet  # 8.2s
-python parq-cli.py arrow-parquet /mnt/ramdisk/ontime-100m.parquet  # 5s
-python parq-cli.py arrow-parquet-partitioned /mnt/ramdisk/ontime-100m.parquet  # 4.8s
-python parq-cli.py arrow-dataset-parquet /mnt/ramdisk/ontime-100m.parquet  # 4.4s
-python parq-cli.py polars-parquet /mnt/ramdisk/ontime-100m.parquet  # 4.2s
+python parq-cli.py polars-parquet ~/ontime-100m.parquet  # 4.4s
 """
 import logging
 import time
@@ -24,6 +15,8 @@ import os
 import pathlib
 import sys
 import shutil
+
+from collections.abc import Iterable
 
 from typing import List
 
@@ -52,14 +45,14 @@ from datafusion import literal
 import polars as pl
 
 import fire
-
+                    
 
 log = logging.getLogger(__name__)
 SCRIPT_DIR = pathlib.Path(__file__).parent.resolve()
 
 
 def to_string_ljustify(df):
-    """pandas dataframe to a string with left justified text"""
+    """Pandas dataframe to a string with left justified text."""
     col_formatters = []
     for col_name in df.columns:
         col = df[col_name]
@@ -80,7 +73,7 @@ def to_string_ljustify(df):
 
 
 def print_tty_redir(df):
-    """print data frame to a tty (partial) or redirected output (full)"""
+    """Print data frame to a tty (partial) or redirected output (full)."""
     if df is not None:
         if sys.stdout.isatty():
             print(df.to_string(index=False))
@@ -92,12 +85,14 @@ def print_tty_redir(df):
 
 
 def check_file_exists(file_name: str):
+    """Exits if file does not exist."""
     data_file = pathlib.Path(file_name)
     if not data_file.exists():
         sys.exit(f"File {data_file} does not exist")
 
 
 def column_schema_to_dict(column_schema) -> dict:
+    """Convert column schema to dict."""
     attrs = [
         "name",
         "path",
@@ -109,7 +104,8 @@ def column_schema_to_dict(column_schema) -> dict:
 
 
 def check_column_exists(parquet_file: str, column_name: str):
-    """checks whether a column exists in a Parquet file
+    """
+    Checks whether a column exists in a Parquet file.
 
     returns parquet metadata
     """
@@ -123,7 +119,7 @@ def check_column_exists(parquet_file: str, column_name: str):
 def get_min_row_groups(
     all_row_groups: int, head_row_groups: int, all: bool = False
 ):
-    "returns smaller number of row groups unless all is True"
+    """Returns smaller number of row groups unless all is True."""
     if all:
         return all_row_groups
     return min(all_row_groups, head_row_groups)
@@ -162,7 +158,7 @@ cp_dict = {c_type: p_type for p_type, c_type in pc_types}
 
 
 def check_executable(executable_name):
-    "return False if executable is not available"
+    """Return False if executable is not available."""
     prg = find_executable(executable_name)
     if prg is None:
         sys.exit(f"Cannot find {executable_name}. Is it in the PATH?")
@@ -171,7 +167,7 @@ def check_executable(executable_name):
 
 
 def get_clickhouse_types(parquet_file):
-    "get parquet columns as clickhouse types string"
+    """Get parquet columns as clickhouse types string."""
     pq_file = pq.ParquetFile(parquet_file)
     schema = pq_file.metadata.schema
     pq_types = []
@@ -185,8 +181,7 @@ def get_clickhouse_types(parquet_file):
 
 
 def ch_server_184m():
-    "query clickhouse-server online data"
-
+    """Query clickhouse-server online data."""
     ch_password = os.environ.get("CH_PASSWORD")
     ch_user = "default"
     if ch_password is None:
@@ -204,13 +199,13 @@ def ch_server_184m():
     results = client.execute(sql)
     elapsed = time.time() - start
     print(f"Elapsed {elapsed:.4f}")
-    for row in results:
-        print(*row)
+    if isinstance(results, Iterable):
+        for row in results:
+            print(*row)
 
 
 def arrow_compute_example():
-    "arrow compute examples"
-
+    """Arrow compute examples."""
     # https://arrow.apache.org/cookbook/py/data.html
 
     tbl = pa.table({"name": list("aabccc"), "value": [1, 1, 1, 2, 3, 3]})
@@ -267,8 +262,7 @@ def arrow_compute_example():
 
 
 def datafusion_compute_example():
-    "datafusion compute examples"
-
+    """Datafusion compute examples."""
     # https://arrow.apache.org/cookbook/py/data.html
 
     tbl = pa.table({"name": list("aabccc"), "value": list(range(6))})
@@ -341,6 +335,7 @@ def datafusion_compute_example():
 
 
 def write_parquet_partitioned(parquet_file: str, partition_cols: List[str]):
+    """Write partitioned parquet file."""
     local = pa.fs.LocalFileSystem()
     tbl = pq.read_table(parquet_file, filesystem=local)
     pq_root_path = pathlib.Path(parquet_file).with_suffix(suffix='')
@@ -354,6 +349,7 @@ def write_parquet_partitioned(parquet_file: str, partition_cols: List[str]):
 
 
 def write_feather_file(parquet_file: str):
+    """Write feather file."""
     local = pa.fs.LocalFileSystem()
     tbl = pq.read_table(parquet_file, filesystem=local)
     feather_file = pathlib.Path(parquet_file).with_suffix(suffix='.feather')
@@ -366,7 +362,7 @@ def write_feather_file(parquet_file: str):
 
 class Commands:
     """
-    Query parquet files
+    Query parquet files.
 
     python parq-cli.py pandas ~/ontime-100m.parquet  # 62s
     python parq-cli.py duck-pandas ~/ontime-100m.parquet  # 7s
@@ -379,7 +375,7 @@ class Commands:
     """
 
     def metadata(self, parquet_file: str):
-        "get metadata"
+        """Get metadata."""
         _ = self  # disable lsp unused warning
         check_file_exists(parquet_file)
         pq_file = pq.ParquetFile(parquet_file)
@@ -387,7 +383,7 @@ class Commands:
         print(metadata)
 
     def schema(self, parquet_file: str):
-        "get column schema"
+        """Get column schema."""
         _ = self  # disable lsp unused warning
         check_file_exists(parquet_file)
         pq_file = pq.ParquetFile(parquet_file)
@@ -395,7 +391,7 @@ class Commands:
         print(metadata.schema)
 
     def column_names(self, parquet_file: str):
-        "get column names"
+        """Get column names."""
         _ = self  # disable lsp unused warning
         check_file_exists(parquet_file)
         pq_file = pq.ParquetFile(parquet_file)
@@ -403,14 +399,14 @@ class Commands:
         print("\n".join(metadata.schema.names))
 
     def column_info(self, parquet_file: str):
-        "get column information"
+        """Get column information."""
         _ = self  # disable lsp unused warning
         check_file_exists(parquet_file)
         pq_file = pq.ParquetFile(parquet_file)
         schema = pq_file.metadata.schema
 
         column_schema_list = []
-        for idx, col_name in enumerate(schema.names):
+        for idx, _ in enumerate(schema.names):
             # print('{}/{} {}'.format(
             #     idx + 1, len(schema.names), str(schema.column(idx))))
             column_schema_list.append(
@@ -421,7 +417,7 @@ class Commands:
         print_tty_redir(df)
 
     def column_stats_set(self, parquet_file: str, all: bool = False):
-        "get number of row groups with column stats"
+        """Get number of row groups with column stats."""
         _ = self  # disable lsp unused warning
         check_file_exists(parquet_file)
         pq_file = pq.ParquetFile(parquet_file)
@@ -444,7 +440,7 @@ class Commands:
     def column_stats(
         self, parquet_file: str, column_name: str, all: bool = False
     ):
-        "get column stats for a single column"
+        """Get column stats for a single column."""
         _ = self  # disable lsp unused warning
         check_file_exists(parquet_file)
         metadata = check_column_exists(parquet_file, column_name)
@@ -466,7 +462,7 @@ class Commands:
         print(df)
 
     def polars_parquet(self, parquet_file: str):
-        "use datafusion to process parquet files"
+        """Use datafusion to process parquet files."""
         _ = self
 
         check_file_exists(parquet_file)
@@ -475,8 +471,8 @@ class Commands:
         df = pl.scan_parquet(parquet_file)
         result = df.groupby("Year").agg(
             [
-                pl.count("Year").alias("Year_count") ,
-                pl.col("Carrier").unique().count().alias("carrier_uniq_ct")
+                pl.count("Year").alias("Year_count"),
+                pl.col("Carrier").unique().count().alias("carrier_uniq_ct"),
             ]
         )
         df_pandas = result.collect().to_pandas().sort_values(by='Year')
@@ -485,7 +481,7 @@ class Commands:
         print("result:\n", df_pandas)
 
     def pandas(self, parquet_file: str):
-        "query parquet file using pandas"
+        """Query parquet file using pandas."""
         _ = self  # disable lsp unused warning
         check_file_exists(parquet_file)
 
@@ -500,7 +496,7 @@ class Commands:
         print(df2)
 
     def duck_pandas(self, parquet_file: str):
-        "query parquet file using duckdb and pandas"
+        """Query parquet file using duckdb and pandas."""
         _ = self  # disable lsp unused warning
         check_file_exists(parquet_file)
         con = duckdb.connect(database=":memory:", read_only=False)
@@ -519,7 +515,7 @@ class Commands:
         print(df)
 
     def duck_arrow(self, parquet_file):
-        "query parquet file using duckdb and arrow"
+        """Query parquet file using duckdb and arrow."""
         _ = self  # disable lsp unused warning
         check_file_exists(parquet_file)
 
@@ -540,7 +536,7 @@ class Commands:
         print(df)
 
     def ch_local(self, parquet_file: str):
-        "query parquet file using clickhouse-local"
+        """Query parquet file using clickhouse-local."""
         _ = self  # disable lsp unused warning
         check_file_exists(parquet_file)
 
@@ -571,7 +567,7 @@ class Commands:
         print(output.decode("utf-8").strip())
 
     def arrow_parquet(self, parquet_file: str):
-        "use arrow to read parquet files"
+        """Use arrow to read parquet files."""
         _ = self  # disable lsp unused warning
         check_file_exists(parquet_file)
 
@@ -588,7 +584,7 @@ class Commands:
         print(result.to_pandas())
 
     def arrow_parquet_partitioned(self, parquet_file: str):
-        "use arrow to read parquet files"
+        """Use arrow to read parquet files."""
         _ = self  # disable lsp unused warning
         check_file_exists(parquet_file)
 
@@ -606,15 +602,14 @@ class Commands:
         print(result.to_pandas())
 
     def arrow_parquet_feather(self, parquet_file: str):
-        "use arrow to read parquet files"
+        """Use arrow to read parquet files."""
         _ = self  # disable lsp unused warning
         check_file_exists(parquet_file)
 
         home_feather = write_feather_file(parquet_file)
 
         start = time.time()
-        tbl = pa.feather.read_table(
-            home_feather, columns=["Year", "Carrier"])
+        tbl = pa.feather.read_table(home_feather, columns=["Year", "Carrier"])
         result = tbl.group_by("Year").aggregate(
             [("Year", "count"), ("Carrier", "count_distinct")]
         )
@@ -623,7 +618,7 @@ class Commands:
         print(result.to_pandas())
 
     def arrow_dataset_parquet(self, parquet_file: str):
-        "use arrow to read parquet files"
+        """Use arrow to read parquet files."""
         _ = self  # disable lsp unused warning
         check_file_exists(parquet_file)
 
@@ -639,7 +634,7 @@ class Commands:
         print(result.to_pandas())
 
     def datafusion_parquet(self, parquet_file: str):
-        "use datafusion to process parquet files"
+        """Use datafusion to process parquet files."""
         _ = self
 
         check_file_exists(parquet_file)
@@ -662,6 +657,7 @@ class Commands:
 
 
 def main():
+    """Main function."""
     fire.Fire(Commands())
     # fire.Fire({'arrow-compute-example': arrow_compute_example})
 
