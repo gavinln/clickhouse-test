@@ -45,7 +45,7 @@ from datafusion import literal
 import polars as pl
 
 import fire
-                    
+
 
 log = logging.getLogger(__name__)
 SCRIPT_DIR = pathlib.Path(__file__).parent.resolve()
