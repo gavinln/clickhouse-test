@@ -495,6 +495,18 @@ python parq-cli.py polars-parquet ~/ontime-100m.parquet  # 5s
 
 [930]: https://medium.com/analytics-vidhya/introduction-to-polars-ee9e638dc163
 
+## Dataframe related frameworks
+
+### Data flow micro-framework
+
+Hamilton
+
+https://github.com/stitchfix/hamilton
+
+### Distributed data frame library in Python/Rust
+
+https://github.com/Eventual-Inc/Daft
+
 ## Links
 
 * Setup [Clickhouse on Debian][1000]
