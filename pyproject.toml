@@ -1,11 +1,37 @@
-[project]
-name = "clickhouse_test"
-requires-python = ">=3.8,<3.11"
-classifiers = [
-    "Programming Language :: Rust",
-    "Programming Language :: Python :: Implementation :: CPython",
-    "Programming Language :: Python :: Implementation :: PyPy",
-]
+[tool.poetry]
+name = "clickhouse-test"
+version = "0.1.0"
+description = ""
+authors = ["Gavin Noronha <gavinln@hotmail.com>"]
+readme = "README.md"
+packages = [{include = "clickhouse_test"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+pandas = "^1.5.2"
+duckdb = "^0.6.1"
+dask = "^2023.1.0"
+datafusion = "^0.7.0"
+awscli = "^1.27.50"
+clickhouse-driver = "^0.2.5"
+clickhouse-sqlalchemy = "^0.2.3"
+jupyter-client = "^7.4.9"
+jupyter-console = "^6.4.4"
+jupyterlab = "^3.5.2"
+seaborn = "^0.12.2"
+polars = {extras = ["pyarrow"], version = "^0.15.15"}
+
+[tool.poetry.group.dev.dependencies]
+black = "^22.12.0"
+fire = "^0.5.0"
+flake8 = "^6.0.0"
+mypy = "^0.991"
+python-lsp-server = "^1.7.0"
+ipython = "^8.8.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
 
 [tool.black]
 line-length = 79
